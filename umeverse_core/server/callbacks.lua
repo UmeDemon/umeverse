@@ -3,7 +3,7 @@
     Allows client to request data from server asynchronously
 ]]
 
-local pendingCallbacks = {}
+local pendingClientCallbacks = {}
 
 --- Register a server callback
 ---@param name string
@@ -25,6 +25,25 @@ RegisterNetEvent('umeverse:server:triggerCallback', function(name, requestId, ..
         TriggerClientEvent('umeverse:client:callbackResponse', src, requestId, ...)
     end, ...)
 end)
+
+--- Handle incoming client callback responses (server→client→server flow)
+RegisterNetEvent('umeverse:server:clientCallbackResponse', function(reqId, ...)
+    if pendingClientCallbacks[reqId] then
+        pendingClientCallbacks[reqId](...)
+        pendingClientCallbacks[reqId] = nil
+    end
+end)
+
+--- Trigger a client callback from server
+---@param name string
+---@param source number
+---@param cb function
+---@vararg any
+function UME.TriggerClientCallback(name, source, cb, ...)
+    local id = math.random(1, 999999)
+    pendingClientCallbacks[id] = cb
+    TriggerClientEvent('umeverse:client:triggerCallback', source, name, id, ...)
+end
 
 -- ═══════════════════════════════════════
 -- Built-in Server Callbacks

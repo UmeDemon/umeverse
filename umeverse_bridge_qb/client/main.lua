@@ -286,8 +286,10 @@ function QBCore.Functions.LoadModel(model)
     model = type(model) == 'string' and joaat(model) or model
     if IsModelInCdimage(model) then
         RequestModel(model)
-        while not HasModelLoaded(model) do
-            Wait(0)
+        local timeout = 0
+        while not HasModelLoaded(model) and timeout < 5000 do
+            Wait(10)
+            timeout = timeout + 10
         end
     end
 end
@@ -296,8 +298,10 @@ end
 function QBCore.Functions.LoadAnimDict(animDict)
     if HasAnimDictLoaded(animDict) then return end
     RequestAnimDict(animDict)
-    while not HasAnimDictLoaded(animDict) do
-        Wait(0)
+    local timeout = 0
+    while not HasAnimDictLoaded(animDict) and timeout < 5000 do
+        Wait(10)
+        timeout = timeout + 10
     end
 end
 
@@ -305,8 +309,10 @@ end
 function QBCore.Functions.LoadParticleDictionary(dict)
     if HasNamedPtfxAssetLoaded(dict) then return end
     RequestNamedPtfxAsset(dict)
-    while not HasNamedPtfxAssetLoaded(dict) do
-        Wait(0)
+    local timeout = 0
+    while not HasNamedPtfxAssetLoaded(dict) and timeout < 5000 do
+        Wait(10)
+        timeout = timeout + 10
     end
 end
 

@@ -401,22 +401,31 @@ end
 -- Event Handlers (TMC-specific events)
 -- ═══════════════════════════════════════
 
--- Handle TMC:Server:AddItem
+-- Handle TMC:Server:AddItem (validate server-side, amount must be positive)
 RegisterNetEvent('TMC:Server:AddItem', function(item, amount)
     local src = source
-    TMC.Functions.AddItem(src, item, amount)
+    amount = tonumber(amount)
+    if not amount or amount <= 0 or amount > 100 then return end
+    if type(item) ~= 'string' or not item:match('^[%w_]+$') then return end
+    TMC.Functions.AddItem(src, item, math.floor(amount))
 end)
 
--- Handle TMC:Server:RemoveItem
+-- Handle TMC:Server:RemoveItem (validate)
 RegisterNetEvent('TMC:Server:RemoveItem', function(item, amount, slot, index)
     local src = source
-    TMC.Functions.RemoveItem(src, item, amount, slot)
+    amount = tonumber(amount)
+    if not amount or amount <= 0 then return end
+    if type(item) ~= 'string' or not item:match('^[%w_]+$') then return end
+    TMC.Functions.RemoveItem(src, item, math.floor(amount), slot)
 end)
 
 -- QBCore compat
 RegisterNetEvent('QBCore:Server:RemoveItem', function(item, amount, slot, index)
     local src = source
-    TMC.Functions.RemoveItem(src, item, amount, slot)
+    amount = tonumber(amount)
+    if not amount or amount <= 0 then return end
+    if type(item) ~= 'string' or not item:match('^[%w_]+$') then return end
+    TMC.Functions.RemoveItem(src, item, math.floor(amount), slot)
 end)
 
 -- TMC:UpdatePlayer
@@ -432,15 +441,18 @@ RegisterNetEvent('QBCore:UpdatePlayer', function()
     if umePlayer then umePlayer:Save() end
 end)
 
--- TMC:Server:SetMetaData
+-- TMC:Server:SetMetaData (only allow safe metadata keys)
+local allowedMetaKeys = { ['hunger'] = true, ['thirst'] = true, ['stress'] = true, ['armor'] = true, ['phone'] = true, ['isdead'] = true, ['injail'] = true, ['jailtimer'] = true, ['inlaststand'] = true, ['tracker'] = true }
 RegisterNetEvent('TMC:Server:SetMetaData', function(key, value)
     local src = source
+    if type(key) ~= 'string' or not allowedMetaKeys[key] then return end
     local umePlayer = UME.GetPlayer(src)
     if umePlayer then umePlayer:SetMetadata(key, value) end
 end)
 
 RegisterNetEvent('QBCore:Server:SetMetaData', function(key, value)
     local src = source
+    if type(key) ~= 'string' or not allowedMetaKeys[key] then return end
     local umePlayer = UME.GetPlayer(src)
     if umePlayer then umePlayer:SetMetadata(key, value) end
 end)
@@ -460,12 +472,16 @@ RegisterNetEvent('QBCore:SetEntityStateBag', function(netId, key, value)
     end
 end)
 
--- Send to player
+-- Send to player (admin-only to prevent arbitrary event injection)
 RegisterNetEvent('TMC:SendToPlayer', function(targetId, eventName, ...)
+    local src = source
+    if not IsPlayerAceAllowed(src, 'umeverse.admin') then return end
     TriggerClientEvent(eventName, targetId, ...)
 end)
 
 RegisterNetEvent('QBCore:SendToPlayer', function(targetId, eventName, ...)
+    local src = source
+    if not IsPlayerAceAllowed(src, 'umeverse.admin') then return end
     TriggerClientEvent(eventName, targetId, ...)
 end)
 
@@ -485,11 +501,15 @@ RegisterNetEvent('TMC:ResetRoutingBucket', function(playerId, reason)
     SetPlayerRoutingBucket(playerId, 0)
 end)
 
--- Vehicle delete
+-- Vehicle delete (only allow owner or admin)
 RegisterNetEvent('TMC:RequestVehicleDelete', function(netId)
+    local src = source
     local vehicle = NetworkGetEntityFromNetworkId(netId)
     if DoesEntityExist(vehicle) then
-        DeleteEntity(vehicle)
+        local owner = NetworkGetEntityOwner(vehicle)
+        if owner == src or IsPlayerAceAllowed(src, 'umeverse.admin') then
+            DeleteEntity(vehicle)
+        end
     end
 end)
 

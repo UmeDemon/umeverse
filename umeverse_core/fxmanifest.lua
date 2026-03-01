@@ -19,9 +19,14 @@ description 'Umeverse Framework - Core Resource'
 version '1.0.0'
 
 -- Shared scripts (loaded on both server and client)
+-- IMPORTANT: main.lua MUST load first (defines global UME table)
 shared_scripts {
     'config.lua',
-    'shared/*.lua',
+    'shared/main.lua',
+    'shared/locale.lua',
+    'shared/items.lua',
+    'shared/jobs.lua',
+    'shared/vehicles.lua',
 }
 
 -- Server scripts

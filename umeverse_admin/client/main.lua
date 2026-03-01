@@ -13,8 +13,9 @@ local spectateTarget = nil
 
 CreateThread(function()
     while true do
-        Wait(0)
+        local sleep = 500
         if UME.IsLoggedIn() then
+            sleep = 5 -- Check key at a reasonable rate, not every frame
             if IsControlJustPressed(0, AdminConfig.OpenControl) then
                 if isPanelOpen then
                     ClosePanel()
@@ -22,9 +23,8 @@ CreateThread(function()
                     TriggerServerEvent('umeverse_admin:server:openPanel')
                 end
             end
-        else
-            Wait(500)
         end
+        Wait(sleep)
     end
 end)
 

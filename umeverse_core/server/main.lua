@@ -201,13 +201,31 @@ RegisterNetEvent('umeverse:server:createCharacter', function(data)
         end
     end
 
-    local citizenid = UME.GenerateId():sub(1, 8):upper()
+    local citizenid
+    local maxAttempts = 10
+    for _ = 1, maxAttempts do
+        citizenid = UME.GenerateId():sub(1, 8):upper()
+        local exists = MySQL.scalar.await('SELECT COUNT(*) FROM umeverse_players WHERE citizenid = ?', { citizenid })
+        if not exists or exists == 0 then break end
+        citizenid = nil
+    end
+
+    if not citizenid then
+        TriggerClientEvent('umeverse:client:notify', src, 'Failed to generate unique character ID. Please try again.', 'error')
+        return
+    end
+
+    -- Sanitize input
+    local firstname = tostring(data.firstname or 'John'):sub(1, 50):gsub('[^%w%s%-]', '')
+    local lastname = tostring(data.lastname or 'Doe'):sub(1, 50):gsub('[^%w%s%-]', '')
+    if #firstname == 0 then firstname = 'John' end
+    if #lastname == 0 then lastname = 'Doe' end
 
     local playerData = {
         identifier = identifier,
         citizenid  = citizenid,
-        firstname  = data.firstname or 'John',
-        lastname   = data.lastname or 'Doe',
+        firstname  = firstname,
+        lastname   = lastname,
         charinfo   = json.encode(data.charinfo or {}),
         money      = json.encode({ cash = UmeConfig.StartingCash, bank = UmeConfig.StartingBank }),
         job        = json.encode({ name = UmeConfig.DefaultJob, grade = UmeConfig.DefaultJobGrade, onduty = false }),
@@ -273,17 +291,27 @@ RegisterNetEvent('umeverse:server:updatePosition', function(coords)
     local src = source
     local player = UME.GetPlayer(src)
     if player and coords then
-        player:SetPosition(coords)
+        -- Validate coordinate types to prevent NaN / nil injection
+        local x = tonumber(coords.x)
+        local y = tonumber(coords.y)
+        local z = tonumber(coords.z)
+        local heading = tonumber(coords.heading or coords.w)
+        if x and y and z and heading then
+            player:SetPosition({ x = x, y = y, z = z, heading = heading })
+        end
     end
 end)
 
---- Client requests status decay every minute
-RegisterNetEvent('umeverse:server:decayStatus', function()
-    local src = source
-    local player = UME.GetPlayer(src)
-    if player then
-        player:RemoveStatus('hunger', UmeConfig.HungerDecayRate)
-        player:RemoveStatus('thirst', UmeConfig.ThirstDecayRate)
+--- Server-driven status decay (runs per-player, not client-triggered)
+CreateThread(function()
+    while true do
+        Wait(60 * 1000) -- Every minute
+        if UmeConfig.EnableStatus then
+            for _, player in pairs(UME.Players) do
+                player:RemoveStatus('hunger', UmeConfig.HungerDecayRate)
+                player:RemoveStatus('thirst', UmeConfig.ThirstDecayRate)
+            end
+        end
     end
 end)
 
@@ -330,7 +358,7 @@ CreateThread(function()
         Wait(UmeConfig.AutoSaveInterval * 60 * 1000)
         local count = 0
         for _, player in pairs(UME.Players) do
-            player:Save()
+            player:SaveAsync() -- Non-blocking save for batch operations
             count = count + 1
         end
         if count > 0 then

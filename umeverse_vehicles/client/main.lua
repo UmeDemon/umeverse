@@ -324,8 +324,9 @@ local seatbeltOn = false
 
 CreateThread(function()
     while true do
-        Wait(0)
+        local sleep = 500
         if UME.IsLoggedIn() and IsPedInAnyVehicle(PlayerPedId(), false) then
+            sleep = 5 -- Responsive key check while in vehicle
             if IsControlJustPressed(0, 311) then -- K
                 seatbeltOn = not seatbeltOn
                 TriggerEvent('umeverse:client:notify', seatbeltOn and 'Seatbelt on' or 'Seatbelt off', 'info')
@@ -336,8 +337,8 @@ CreateThread(function()
             end
         else
             seatbeltOn = false
-            Wait(500)
         end
+        Wait(sleep)
     end
 end)
 

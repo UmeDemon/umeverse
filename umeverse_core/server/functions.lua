@@ -101,9 +101,8 @@ end
 ---@param itemName string
 ---@param cb function
 function UME.RegisterUsableItem(itemName, cb)
-    RegisterNetEvent('umeverse:server:useItem:' .. itemName, function(forwardedSource)
-        -- Source can come from direct client trigger or from inventory forwarding
-        local src = forwardedSource or source
+    RegisterNetEvent('umeverse:server:useItem:' .. itemName, function()
+        local src = source
         local player = UME.GetPlayer(src)
         if player and player:HasItem(itemName) then
             cb(src, player, itemName)

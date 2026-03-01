@@ -19,6 +19,14 @@ function UME.LoadPlayer(source, citizenid)
 
     local data = result[1]
 
+    --- Safe JSON decode with fallback
+    local function safeDecode(str, fallback)
+        if not str or str == '' then return fallback end
+        local ok, decoded = pcall(json.decode, str)
+        if ok and decoded ~= nil then return decoded end
+        return fallback
+    end
+
     local self = setmetatable({}, UME.PlayerClass)
     self.source     = source
     self.citizenid  = data.citizenid
@@ -26,14 +34,14 @@ function UME.LoadPlayer(source, citizenid)
     self.name       = GetPlayerName(source)
     self.firstname  = data.firstname
     self.lastname   = data.lastname
-    self.charinfo   = json.decode(data.charinfo) or {}
-    self.money      = json.decode(data.money) or { cash = 0, bank = 0 }
-    self.job        = json.decode(data.job) or { name = 'unemployed', grade = 0, onduty = false }
-    self.position   = json.decode(data.position) or { x = UmeConfig.DefaultSpawn.x, y = UmeConfig.DefaultSpawn.y, z = UmeConfig.DefaultSpawn.z, heading = UmeConfig.DefaultSpawn.w }
-    self.inventory  = json.decode(data.inventory) or {}
-    self.status     = json.decode(data.status) or { hunger = 100.0, thirst = 100.0 }
-    self.skin       = json.decode(data.skin) or {}
-    self.metadata   = json.decode(data.metadata or '{}') or {}
+    self.charinfo   = safeDecode(data.charinfo, {})
+    self.money      = safeDecode(data.money, { cash = 0, bank = 0 })
+    self.job        = safeDecode(data.job, { name = 'unemployed', grade = 0, onduty = false })
+    self.position   = safeDecode(data.position, { x = UmeConfig.DefaultSpawn.x, y = UmeConfig.DefaultSpawn.y, z = UmeConfig.DefaultSpawn.z, heading = UmeConfig.DefaultSpawn.w })
+    self.inventory  = safeDecode(data.inventory, {})
+    self.status     = safeDecode(data.status, { hunger = 100.0, thirst = 100.0 })
+    self.skin       = safeDecode(data.skin, {})
+    self.metadata   = safeDecode(data.metadata or '{}', {})
 
     -- Cache job label info
     local jobData = UME.GetJob(self.job.name)
@@ -181,8 +189,11 @@ end
 function UME.PlayerClass:SetMoney(moneyType, amount)
     moneyType = moneyType or 'cash'
     amount = tonumber(amount) or 0
+    if amount < 0 then amount = 0 end
+    local oldAmount = self.money[moneyType] or 0
     self.money[moneyType] = amount
     TriggerClientEvent('umeverse:client:updateMoney', self.source, self.money, moneyType, amount, 'set')
+    TriggerEvent('umeverse:server:moneyChange', self.source, moneyType, math.abs(amount - oldAmount), 'set', 'direct')
 end
 
 --- Check if player has enough money
@@ -255,6 +266,8 @@ function UME.PlayerClass:AddItem(itemName, amount, metadata)
     end
 
     amount = tonumber(amount) or 1
+    if amount <= 0 then return false end
+    amount = math.floor(amount)
 
     -- Find existing stack or empty slot
     for i, slot in ipairs(self.inventory) do
@@ -290,6 +303,8 @@ end
 ---@return boolean
 function UME.PlayerClass:RemoveItem(itemName, amount)
     amount = tonumber(amount) or 1
+    if amount <= 0 then return false end
+    amount = math.floor(amount)
 
     for i, slot in ipairs(self.inventory) do
         if slot.name == itemName then
@@ -403,9 +418,24 @@ end
 -- Persistence
 -- ═══════════════════════════════════════
 
---- Save player data to database
+--- Save player data to database (blocking)
 function UME.PlayerClass:Save()
     MySQL.update.await('UPDATE umeverse_players SET money = ?, job = ?, position = ?, inventory = ?, status = ?, skin = ?, charinfo = ?, metadata = ? WHERE citizenid = ?', {
+        json.encode(self.money),
+        json.encode(self.job),
+        json.encode(self.position),
+        json.encode(self.inventory),
+        json.encode(self.status),
+        json.encode(self.skin),
+        json.encode(self.charinfo),
+        json.encode(self.metadata),
+        self.citizenid,
+    })
+end
+
+--- Save player data to database (non-blocking, for batch saves)
+function UME.PlayerClass:SaveAsync()
+    MySQL.update('UPDATE umeverse_players SET money = ?, job = ?, position = ?, inventory = ?, status = ?, skin = ?, charinfo = ?, metadata = ? WHERE citizenid = ?', {
         json.encode(self.money),
         json.encode(self.job),
         json.encode(self.position),

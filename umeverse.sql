@@ -111,3 +111,21 @@ CREATE TABLE IF NOT EXISTS `umeverse_vehicle_keys` (
     UNIQUE KEY `uk_plate_citizen` (`plate`, `citizenid`),
     KEY `idx_key_citizenid` (`citizenid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ──────────────────────────────────────
+-- Admin / Server Logs
+-- ──────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS `umeverse_logs` (
+    `id`            INT(11)         NOT NULL AUTO_INCREMENT,
+    `source`        VARCHAR(50)     DEFAULT NULL COMMENT 'Player server id or System',
+    `citizenid`     VARCHAR(50)     DEFAULT NULL,
+    `action`        VARCHAR(50)     NOT NULL COMMENT 'e.g. admin_kick, admin_ban, money_add',
+    `details`       TEXT            DEFAULT NULL,
+    `metadata`      LONGTEXT        DEFAULT '{}' COMMENT 'JSON: extra context',
+    `created_at`    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_log_citizenid` (`citizenid`),
+    KEY `idx_log_action` (`action`),
+    KEY `idx_log_created` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

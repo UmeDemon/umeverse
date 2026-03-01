@@ -8,6 +8,21 @@ local vehicleKeys = {}     -- plate -> true
 local currentGarage = nil
 
 -- ═══════════════════════════════════════
+-- Load persisted vehicle keys on login
+-- ═══════════════════════════════════════
+
+RegisterNetEvent('umeverse:client:playerLoaded', function()
+    UME.TriggerServerCallback('umeverse_vehicles:getKeys', function(keys)
+        vehicleKeys = {}
+        if keys then
+            for _, plate in ipairs(keys) do
+                vehicleKeys[plate] = true
+            end
+        end
+    end)
+end)
+
+-- ═══════════════════════════════════════
 -- Blips
 -- ═══════════════════════════════════════
 
@@ -250,6 +265,10 @@ end)
 RegisterNetEvent('umeverse_vehicles:client:receiveKeys', function(plate)
     vehicleKeys[plate] = true
     TriggerEvent('umeverse:client:notify', 'You received keys for plate: ' .. plate, 'info')
+end)
+
+RegisterNetEvent('umeverse_vehicles:client:removeKeys', function(plate)
+    vehicleKeys[plate] = nil
 end)
 
 --- Check if player has keys to current vehicle

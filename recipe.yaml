@@ -1,6 +1,7 @@
 $engine: 2
 $onesync: on
 $minFxVersion: 5848
+$minTxAdminVersion: 7.0.0
 
 name: Umeverse Framework
 version: 1.0.0
@@ -25,6 +26,50 @@ variables:
   ownerIdentifier:
     label: "Your FiveM License Identifier (type 'status' in console to find)"
     default: "license:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  identifierType:
+    label: "Player Identifier Type"
+    default: "license"
+    options:
+      - label: "FiveM License (recommended)"
+        value: "license"
+      - label: "Steam"
+        value: "steam"
+      - label: "Discord"
+        value: "discord"
+  steamWebApiKey:
+    label: "Steam Web API Key (required only if using Steam identifier, leave blank otherwise)"
+    default: ""
+  discordWebhook:
+    label: "Discord Webhook URL for admin/server logs (optional, leave blank to disable)"
+    default: ""
+  installPmaVoice:
+    label: "Install pma-voice (proximity voice chat)?"
+    default: "yes"
+    options:
+      - label: "Yes"
+        value: "yes"
+      - label: "No"
+        value: "no"
+  installOxLib:
+    label: "Install ox_lib (utility library for third-party scripts)?"
+    default: "yes"
+    options:
+      - label: "Yes"
+        value: "yes"
+      - label: "No"
+        value: "no"
+  bridgeType:
+    label: "Compatibility Bridge (for third-party scripts)"
+    default: "none"
+    options:
+      - label: "None"
+        value: "none"
+      - label: "QBCore / QBox"
+        value: "qb"
+      - label: "ESX"
+        value: "esx"
+      - label: "TMC (The Mob City)"
+        value: "tmc"
 
 tasks:
   ##############################################
@@ -34,6 +79,15 @@ tasks:
     seconds: 5
     message: "Setting up Umeverse Framework..."
 
+  # ─── Download cfx-server-data (default FiveM resources) ───
+  - action: download_github
+    src: https://github.com/citizenfx/cfx-server-data
+    dest: ./tmp/cfx-server-data
+
+  - action: move_path
+    src: ./tmp/cfx-server-data/resources
+    dest: ./resources/[cfx-default]
+
   # ─── Download oxmysql (release build) ───
   - action: download_file
     url: https://github.com/overextended/oxmysql/releases/latest/download/oxmysql.zip
@@ -42,6 +96,40 @@ tasks:
   - action: unzip
     src: ./tmp/oxmysql.zip
     dest: ./resources/oxmysql
+
+  # ─── Download pma-voice (conditional) ───
+  - action: download_file
+    url: https://github.com/AvarianKnight/pma-voice/releases/latest/download/pma-voice.zip
+    dest: ./tmp/pma-voice.zip
+    condition:
+      value: "{{installPmaVoice}}"
+      operator: "=="
+      expected: "yes"
+
+  - action: unzip
+    src: ./tmp/pma-voice.zip
+    dest: ./resources/pma-voice
+    condition:
+      value: "{{installPmaVoice}}"
+      operator: "=="
+      expected: "yes"
+
+  # ─── Download ox_lib (conditional) ───
+  - action: download_file
+    url: https://github.com/overextended/ox_lib/releases/latest/download/ox_lib.zip
+    dest: ./tmp/ox_lib.zip
+    condition:
+      value: "{{installOxLib}}"
+      operator: "=="
+      expected: "yes"
+
+  - action: unzip
+    src: ./tmp/ox_lib.zip
+    dest: ./resources/ox_lib
+    condition:
+      value: "{{installOxLib}}"
+      operator: "=="
+      expected: "yes"
 
   # ─── Download Umeverse Framework ───
   - action: download_github
@@ -95,10 +183,30 @@ tasks:
 
   - action: waste_time
     seconds: 3
-    message: "Resources downloaded. Writing server configuration..."
+    message: "Resources downloaded. Configuring framework..."
 
   ##############################################
-  # STEP 2 — Generate server.cfg (MUST come before database setup)
+  # STEP 2 — Inject configuration values
+  ##############################################
+
+  # ─── Set identifier type in core config ───
+  - action: replace_string
+    file: ./resources/umeverse_core/config.lua
+    search: "UmeConfig.IdentifierType = 'license'"
+    replace: "UmeConfig.IdentifierType = '{{identifierType}}'"
+
+  # ─── Set Discord webhook in core config ───
+  - action: replace_string
+    file: ./resources/umeverse_core/config.lua
+    search: "UmeConfig.LogWebhook = ''"
+    replace: "UmeConfig.LogWebhook = '{{discordWebhook}}'"
+
+  - action: waste_time
+    seconds: 2
+    message: "Configuration injected. Writing server config..."
+
+  ##############################################
+  # STEP 3 — Generate server.cfg
   ##############################################
   - action: write_file
     dest: ./server.cfg
@@ -122,6 +230,9 @@ tasks:
       # License Key
       sv_licenseKey "{{svLicense}}"
 
+      # Steam Web API Key (leave empty if not using Steam identifiers)
+      set steam_webApiKey "{{steamWebApiKey}}"
+
       # OneSync (REQUIRED for Umeverse)
       set onesync on
 
@@ -138,6 +249,12 @@ tasks:
       # ─── Database Driver ───
       ensure oxmysql
 
+      # ─── Optional: Proximity Voice Chat ───
+      #ensure pma-voice
+
+      # ─── Optional: Utility Library ───
+      #ensure ox_lib
+
       # ─── Umeverse Framework (ORDER MATTERS) ───
       ensure umeverse_core
       ensure umeverse_inventory
@@ -147,14 +264,8 @@ tasks:
       ensure umeverse_weathersync
       ensure umeverse_appearance
 
-      # ─── Compatibility Bridges (uncomment as needed) ───
-      # ensure umeverse_bridge_qb    # QBCore / QBox scripts
-      # ensure umeverse_bridge_esx   # ESX scripts
-      # ensure umeverse_bridge_tmc   # TMC (The Mob City) scripts
-
-      # ─── Recommended Third-Party ───
-      # ensure pma-voice
-      # ensure ox_lib
+      # ─── Compatibility Bridge ───
+      # (Managed by recipe — the selected bridge is auto-enabled below)
 
       # ─── Your Additional Scripts ───
       # ensure your_script_here
@@ -165,12 +276,62 @@ tasks:
       add_ace umeverse.superadmin umeverse.admin allow
       add_ace umeverse.admin umeverse.moderator allow
 
+  # ─── Enable pma-voice if selected ───
+  - action: replace_string
+    file: ./server.cfg
+    search: "#ensure pma-voice"
+    replace: "ensure pma-voice"
+    condition:
+      value: "{{installPmaVoice}}"
+      operator: "=="
+      expected: "yes"
+
+  # ─── Enable ox_lib if selected ───
+  - action: replace_string
+    file: ./server.cfg
+    search: "#ensure ox_lib"
+    replace: "ensure ox_lib"
+    condition:
+      value: "{{installOxLib}}"
+      operator: "=="
+      expected: "yes"
+
+  # ─── Enable QBCore bridge if selected ───
+  - action: append_string
+    file: ./server.cfg
+    search: "# (Managed by recipe"
+    append: "\n      ensure umeverse_bridge_qb    # QBCore / QBox compatibility"
+    condition:
+      value: "{{bridgeType}}"
+      operator: "=="
+      expected: "qb"
+
+  # ─── Enable ESX bridge if selected ───
+  - action: append_string
+    file: ./server.cfg
+    search: "# (Managed by recipe"
+    append: "\n      ensure umeverse_bridge_esx   # ESX compatibility"
+    condition:
+      value: "{{bridgeType}}"
+      operator: "=="
+      expected: "esx"
+
+  # ─── Enable TMC bridge if selected ───
+  - action: append_string
+    file: ./server.cfg
+    search: "# (Managed by recipe"
+    append: "\n      ensure umeverse_bridge_tmc   # TMC (The Mob City) compatibility"
+    condition:
+      value: "{{bridgeType}}"
+      operator: "=="
+      expected: "tmc"
+
   - action: waste_time
     seconds: 2
     message: "Server config written. Setting up database..."
 
   ##############################################
-  # STEP 3 — Database Setup
+  # STEP 4 — Database Setup
   ##############################################
   - action: connect_database
     name: umeverse
@@ -273,12 +434,28 @@ tasks:
           KEY `idx_key_citizenid` (`citizenid`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+  - action: query_database
+    query: |
+      CREATE TABLE IF NOT EXISTS `umeverse_logs` (
+          `id`            INT(11)         NOT NULL AUTO_INCREMENT,
+          `source`        VARCHAR(50)     DEFAULT NULL COMMENT 'Player server id or System',
+          `citizenid`     VARCHAR(50)     DEFAULT NULL,
+          `action`        VARCHAR(50)     NOT NULL COMMENT 'e.g. admin_kick, admin_ban, money_add',
+          `details`       TEXT            DEFAULT NULL,
+          `metadata`      LONGTEXT        DEFAULT '{}' COMMENT 'JSON: extra context',
+          `created_at`    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+          PRIMARY KEY (`id`),
+          KEY `idx_log_citizenid` (`citizenid`),
+          KEY `idx_log_action` (`action`),
+          KEY `idx_log_created` (`created_at`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
   - action: waste_time
     seconds: 3
     message: "Database tables created. Finalizing setup..."
 
   ##############################################
-  # STEP 4 — Done
+  # STEP 5 — Done
   ##############################################
   - action: waste_time
     seconds: 5
@@ -286,9 +463,8 @@ tasks:
       Umeverse Framework setup complete!
 
       NEXT STEPS:
-      1. (Optional) Set your Discord webhook in resources/umeverse_core/config.lua → LogWebhook
-      2. Your ACE owner identifier is set to: {{ownerIdentifier}}
+      1. Your ACE owner identifier is set to: {{ownerIdentifier}}
          Change it in server.cfg if needed (type 'status' in console to find yours)
-      3. Click "Start Server" in txAdmin — you're ready to play!
+      2. Click "Start Server" in txAdmin — you're ready to play!
 
       Start your server and connect!

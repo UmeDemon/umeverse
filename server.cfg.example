@@ -35,6 +35,7 @@ set mysql_connection_string "mysql://root:password@localhost/umeverse?charset=ut
 
 # ──────────────────────────────────────
 # Steam Web API (required if using steam identifier)
+# Get your key at: https://steamcommunity.com/dev/apikey
 # ──────────────────────────────────────
 # set steam_webApiKey "YOUR_STEAM_API_KEY"
 
@@ -69,6 +70,9 @@ ensure umeverse_appearance
 
 # ──────────────────────────────────────
 # Recommended Third-Party Resources
+# Download links (use txAdmin recipe for automatic install):
+#   pma-voice: https://github.com/AvarianKnight/pma-voice/releases
+#   ox_lib:    https://github.com/overextended/ox_lib/releases
 # ──────────────────────────────────────
 # ensure pma-voice              # Proximity voice chat
 # ensure ox_lib                 # Utility library (many scripts depend on this)

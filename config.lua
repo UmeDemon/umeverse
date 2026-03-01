@@ -32,3 +32,16 @@ UmeConfig.AutoSaveInterval = 300000   -- 5 minutes
 
 -- Locale / language used for server-side translations.
 UmeConfig.Locale = 'en'
+
+-- Default spawn point used for brand-new characters (or when no DB position is saved).
+-- Coordinates are in the GTA V world-space. Heading is in degrees (0–360).
+UmeConfig.SpawnPoint = {
+    x       = -269.4,
+    y       = -955.3,
+    z       =   31.2,
+    heading =  205.0,
+}
+
+-- Show the HUD (money, health, armour) overlay by default.
+UmeConfig.ShowHud = true
+

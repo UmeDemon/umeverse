@@ -85,6 +85,16 @@ AddEventHandler('playerDropped', function(reason)
     end
 end)
 
+-- ── Position updates from client ─────────────────────────
+
+RegisterNetEvent('umeverse:server:updatePosition', function(x, y, z, heading)
+    local source = source  -- luacheck: ignore
+    local player = Ume.Player.Get(source)
+    if player then
+        player.position = { x = x, y = y, z = z, heading = heading }
+    end
+end)
+
 -- ── Server-side callbacks ─────────────────────────────────
 
 -- Allow clients to request the current player data.

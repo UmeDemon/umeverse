@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Umeverse Admin</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="admin-container" class="hidden">
+        <div class="admin-panel">
+            <!-- Header -->
+            <div class="admin-header">
+                <div class="header-left">
+                    <h1>⚡ Umeverse Admin</h1>
+                    <span class="admin-badge" id="admin-badge">Admin</span>
+                </div>
+                <button class="close-btn" id="btn-close">&times;</button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="admin-tabs">
+                <button class="admin-tab active" data-tab="players">Players</button>
+                <button class="admin-tab" data-tab="actions">Quick Actions</button>
+                <button class="admin-tab" data-tab="manage">Player Manage</button>
+                <button class="admin-tab" data-tab="bans">Bans</button>
+            </div>
+
+            <!-- Players Tab -->
+            <div class="admin-content active" id="tab-players">
+                <div class="search-bar">
+                    <input type="text" id="player-search" placeholder="Search players...">
+                </div>
+                <div class="player-list" id="player-list"></div>
+            </div>
+
+            <!-- Quick Actions Tab -->
+            <div class="admin-content" id="tab-actions">
+                <div class="action-grid">
+                    <button class="action-card" data-action="teleport">
+                        <span class="action-icon">📍</span>
+                        <span>Teleport to Waypoint</span>
+                    </button>
+                    <button class="action-card" data-action="noclip">
+                        <span class="action-icon">👻</span>
+                        <span>Toggle Noclip</span>
+                    </button>
+                    <button class="action-card" data-action="godmode">
+                        <span class="action-icon">🛡️</span>
+                        <span>Toggle God Mode</span>
+                    </button>
+                    <button class="action-card" data-action="revive_self">
+                        <span class="action-icon">❤️</span>
+                        <span>Revive Self</span>
+                    </button>
+                </div>
+
+                <div class="section-title">Spawn Vehicle</div>
+                <div class="inline-form">
+                    <input type="text" id="spawn-model" placeholder="Vehicle model (e.g. adder)">
+                    <button class="btn btn-primary" id="btn-spawn-vehicle">Spawn</button>
+                </div>
+            </div>
+
+            <!-- Player Manage Tab -->
+            <div class="admin-content" id="tab-manage">
+                <div class="form-group">
+                    <label>Select Player</label>
+                    <select id="manage-player"></select>
+                </div>
+
+                <div class="manage-actions">
+                    <button class="btn btn-sm" id="btn-goto">Go To</button>
+                    <button class="btn btn-sm" id="btn-bring">Bring</button>
+                    <button class="btn btn-sm" id="btn-revive-target">Revive</button>
+                    <button class="btn btn-sm" id="btn-freeze">Freeze</button>
+                    <button class="btn btn-sm" id="btn-spectate">Spectate</button>
+                </div>
+
+                <div class="section-title">Give Money</div>
+                <div class="inline-form">
+                    <select id="money-type">
+                        <option value="cash">Cash</option>
+                        <option value="bank">Bank</option>
+                    </select>
+                    <input type="number" id="money-amount" placeholder="Amount">
+                    <button class="btn btn-primary btn-sm" id="btn-give-money">Give</button>
+                </div>
+
+                <div class="section-title">Set Job</div>
+                <div class="inline-form">
+                    <select id="job-select"></select>
+                    <select id="grade-select"></select>
+                    <button class="btn btn-primary btn-sm" id="btn-set-job">Set</button>
+                </div>
+
+                <div class="section-title">Give Item</div>
+                <div class="inline-form">
+                    <select id="item-select"></select>
+                    <input type="number" id="item-amount" placeholder="Qty" value="1" min="1">
+                    <button class="btn btn-primary btn-sm" id="btn-give-item">Give</button>
+                </div>
+
+                <div class="section-title danger">Punish</div>
+                <div class="form-group">
+                    <input type="text" id="punish-reason" placeholder="Reason">
+                </div>
+                <div class="inline-form">
+                    <button class="btn btn-danger btn-sm" id="btn-kick">Kick</button>
+                    <input type="number" id="ban-duration" placeholder="Hours (0=perm)" value="0" min="0">
+                    <button class="btn btn-danger btn-sm" id="btn-ban">Ban</button>
+                </div>
+            </div>
+
+            <!-- Bans Tab -->
+            <div class="admin-content" id="tab-bans">
+                <div class="ban-list" id="ban-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

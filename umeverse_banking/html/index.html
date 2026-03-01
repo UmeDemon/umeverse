@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Umeverse Bank</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="bank-container" class="hidden">
+        <div class="bank-panel">
+            <!-- Header -->
+            <div class="bank-header">
+                <div class="bank-logo">🏦</div>
+                <h1>Maze Bank</h1>
+                <p id="bank-welcome">Welcome, Player</p>
+                <button class="close-btn" id="btn-close">&times;</button>
+            </div>
+
+            <!-- Balance Cards -->
+            <div class="balance-row">
+                <div class="balance-card">
+                    <span class="balance-label">Cash</span>
+                    <span class="balance-amount" id="cash-amount">$0</span>
+                </div>
+                <div class="balance-card primary">
+                    <span class="balance-label">Bank</span>
+                    <span class="balance-amount" id="bank-amount">$0</span>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" data-tab="deposit">Deposit</button>
+                <button class="tab" data-tab="withdraw">Withdraw</button>
+                <button class="tab" data-tab="transfer">Transfer</button>
+                <button class="tab" data-tab="history">History</button>
+            </div>
+
+            <!-- Tab Content: Deposit -->
+            <div class="tab-content active" id="tab-deposit">
+                <div class="action-form">
+                    <label>Amount to Deposit</label>
+                    <input type="number" id="deposit-amount" placeholder="Enter amount" min="1">
+                    <div class="quick-amounts">
+                        <button class="quick-btn" data-amount="100">$100</button>
+                        <button class="quick-btn" data-amount="500">$500</button>
+                        <button class="quick-btn" data-amount="1000">$1K</button>
+                        <button class="quick-btn" data-amount="5000">$5K</button>
+                        <button class="quick-btn" data-amount="all">All</button>
+                    </div>
+                    <button class="btn btn-primary" id="btn-deposit">Deposit</button>
+                </div>
+            </div>
+
+            <!-- Tab Content: Withdraw -->
+            <div class="tab-content" id="tab-withdraw">
+                <div class="action-form">
+                    <label>Amount to Withdraw</label>
+                    <input type="number" id="withdraw-amount" placeholder="Enter amount" min="1">
+                    <div class="quick-amounts">
+                        <button class="quick-btn" data-amount="100">$100</button>
+                        <button class="quick-btn" data-amount="500">$500</button>
+                        <button class="quick-btn" data-amount="1000">$1K</button>
+                        <button class="quick-btn" data-amount="5000">$5K</button>
+                        <button class="quick-btn" data-amount="all">All</button>
+                    </div>
+                    <button class="btn btn-primary" id="btn-withdraw">Withdraw</button>
+                </div>
+            </div>
+
+            <!-- Tab Content: Transfer -->
+            <div class="tab-content" id="tab-transfer">
+                <div class="action-form">
+                    <label>Transfer To</label>
+                    <select id="transfer-target">
+                        <option value="">Select a player...</option>
+                    </select>
+                    <label>Amount</label>
+                    <input type="number" id="transfer-amount" placeholder="Enter amount" min="1">
+                    <button class="btn btn-primary" id="btn-transfer">Transfer</button>
+                </div>
+            </div>
+
+            <!-- Tab Content: History -->
+            <div class="tab-content" id="tab-history">
+                <div class="transaction-list" id="transaction-list">
+                    <p class="empty-msg">No transactions found.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

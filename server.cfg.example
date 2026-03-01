@@ -1,0 +1,103 @@
+# ╔══════════════════════════════════════════════════════════════╗
+# ║          Umeverse Framework - Server Configuration          ║
+# ║          Copy this file to your server's server.cfg         ║
+# ╚══════════════════════════════════════════════════════════════╝
+
+# ──────────────────────────────────────
+# Server Identity
+# ──────────────────────────────────────
+sv_hostname "Umeverse RP"
+sv_projectName "Umeverse RP"
+sv_projectDesc "A custom FiveM roleplay server powered by Umeverse Framework"
+sets sv_projectName "Umeverse RP"
+sets tags "roleplay, custom, umeverse"
+sets locale "en-US"
+
+sv_maxclients 64
+sv_endpointPrivacy true
+sv_scriptHookAllowed 0
+
+# ──────────────────────────────────────
+# License Key (from https://keymaster.fivem.net/)
+# ──────────────────────────────────────
+sv_licenseKey "YOUR_FIVEM_LICENSE_KEY_HERE"
+
+# ──────────────────────────────────────
+# OneSync (REQUIRED)
+# ──────────────────────────────────────
+set onesync on
+
+# ──────────────────────────────────────
+# Database (oxmysql)
+# Format: mysql://user:password@host/database?charset=utf8mb4
+# ──────────────────────────────────────
+set mysql_connection_string "mysql://root:password@localhost/umeverse?charset=utf8mb4"
+
+# ──────────────────────────────────────
+# Steam Web API (required if using steam identifier)
+# ──────────────────────────────────────
+# set steam_webApiKey "YOUR_STEAM_API_KEY"
+
+# ──────────────────────────────────────
+# Core Dependencies
+# ──────────────────────────────────────
+ensure mapmanager
+ensure chat
+ensure spawnmanager
+ensure sessionmanager
+ensure hardcap
+ensure oxmysql
+
+# ──────────────────────────────────────
+# Umeverse Framework (ORDER MATTERS)
+# ──────────────────────────────────────
+ensure umeverse_core
+ensure umeverse_inventory
+ensure umeverse_banking
+ensure umeverse_vehicles
+ensure umeverse_admin
+ensure umeverse_weathersync
+ensure umeverse_appearance
+
+# ──────────────────────────────────────
+# Optional: Compatibility Bridges (AFTER umeverse_core)
+# Enable only the ones you need for third-party scripts
+# ──────────────────────────────────────
+# ensure umeverse_bridge_qb    # For QBCore / QBox scripts
+# ensure umeverse_bridge_esx   # For ESX scripts
+# ensure umeverse_bridge_tmc   # For TMC (The Mob City) scripts
+
+# ──────────────────────────────────────
+# Recommended Third-Party Resources
+# ──────────────────────────────────────
+# ensure pma-voice              # Proximity voice chat
+# ensure ox_lib                 # Utility library (many scripts depend on this)
+# ensure illenium-appearance    # Character appearance/clothing
+# ensure fivem-appearance       # Alternative appearance resource
+
+# ──────────────────────────────────────
+# Your Additional Scripts
+# ──────────────────────────────────────
+# ensure your_script_here
+
+# ──────────────────────────────────────
+# Admin Permissions (ACE)
+# ──────────────────────────────────────
+# Replace identifiers with your own.
+# Find yours: type "status" in txAdmin console while connected.
+#
+# Levels: umeverse.moderator, umeverse.admin, umeverse.superadmin, umeverse.owner
+
+# Owner (replace with your identifier)
+add_ace identifier.license:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx umeverse.owner allow
+
+# Admins
+# add_ace identifier.license:yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy umeverse.admin allow
+
+# Moderators
+# add_ace identifier.discord:123456789012345678 umeverse.moderator allow
+
+# Permission inheritance
+add_ace umeverse.owner umeverse.superadmin allow
+add_ace umeverse.superadmin umeverse.admin allow
+add_ace umeverse.admin umeverse.moderator allow

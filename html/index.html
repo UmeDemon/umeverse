@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UmeVerse UI</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* ── Notification toasts ──────────────────────────── */
+        #notifications {
+            position: fixed;
+            bottom: 60px;
+            right: 20px;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 8px;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .toast {
+            min-width: 260px;
+            max-width: 380px;
+            padding: 12px 18px;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+            opacity: 0;
+            transform: translateX(40px);
+            animation: slideIn 0.3s ease forwards;
+        }
+
+        .toast.hide {
+            animation: slideOut 0.3s ease forwards;
+        }
+
+        .toast.info    { background: rgba(30, 100, 200, 0.88); }
+        .toast.success { background: rgba(30, 160,  60, 0.88); }
+        .toast.warning { background: rgba(200, 140,  0, 0.88); }
+        .toast.error   { background: rgba(200,  40, 40, 0.88); }
+
+        @keyframes slideIn {
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideOut {
+            to { opacity: 0; transform: translateX(40px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="notifications"></div>
+
+    <script>
+        'use strict';
+
+        const container = document.getElementById('notifications');
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+
+            // Auto-remove after 4 seconds.
+            setTimeout(() => {
+                toast.classList.add('hide');
+                toast.addEventListener('animationend', () => toast.remove(), { once: true });
+            }, 4000);
+        }
+
+        window.addEventListener('message', (event) => {
+            const data = event.data;
+            if (!data || !data.action) return;
+
+            if (data.action === 'notify') {
+                showToast(data.message, data.type || 'info');
+            }
+        });
+    </script>
+</body>
+</html>

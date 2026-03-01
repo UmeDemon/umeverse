@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Umeverse Garage</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="garage-container" class="hidden">
+        <div class="garage-panel">
+            <div class="garage-header">
+                <h2 id="garage-title">Garage</h2>
+                <span class="close-btn" onclick="closeGarage()">&times;</span>
+            </div>
+            <div class="garage-body">
+                <div id="vehicle-list"></div>
+                <div id="empty-msg" class="empty-msg hidden">No vehicles found.</div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

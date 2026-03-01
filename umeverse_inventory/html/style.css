@@ -1,0 +1,245 @@
+/* ═══════════════════════════════════════
+   Umeverse Inventory - Styles
+   ═══════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: #fff;
+    overflow: hidden;
+    user-select: none;
+}
+
+.hidden { display: none !important; }
+
+#inventory-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+}
+
+.inventory-wrapper {
+    display: flex;
+    gap: 20px;
+}
+
+/* ══ Panels ══ */
+
+.inventory-panel {
+    background: rgba(12, 12, 30, 0.92);
+    backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 20px;
+    width: 440px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.panel-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* ══ Weight Bar ══ */
+
+.weight-bar {
+    width: 140px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.weight-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #6366f1);
+    border-radius: 10px;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.weight-bar span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* ══ Grid ══ */
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+}
+
+.inv-slot {
+    aspect-ratio: 1;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+    padding: 6px;
+}
+
+.inv-slot:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(96, 165, 250, 0.3);
+}
+
+.inv-slot.has-item {
+    background: rgba(59, 130, 246, 0.06);
+    border-color: rgba(59, 130, 246, 0.15);
+}
+
+.inv-slot.dragging {
+    opacity: 0.4;
+}
+
+.inv-slot .item-icon {
+    font-size: 22px;
+    margin-bottom: 2px;
+}
+
+.inv-slot .item-name {
+    font-size: 9px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+.inv-slot .item-amount {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(0, 0, 0, 0.5);
+    padding: 1px 5px;
+    border-radius: 4px;
+}
+
+.inv-slot .item-weight {
+    position: absolute;
+    bottom: 4px;
+    left: 6px;
+    font-size: 8px;
+    color: rgba(255, 255, 255, 0.35);
+}
+
+/* ══ Context Menu ══ */
+
+#context-menu {
+    position: fixed;
+    background: rgba(15, 15, 35, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 6px;
+    min-width: 120px;
+    z-index: 2000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.ctx-btn {
+    display: block;
+    width: 100%;
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.15s;
+}
+
+.ctx-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.ctx-close {
+    color: rgba(239, 68, 68, 0.8);
+}
+
+/* ══ Tooltip ══ */
+
+#tooltip {
+    position: fixed;
+    background: rgba(15, 15, 35, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 14px 16px;
+    max-width: 220px;
+    z-index: 1500;
+    pointer-events: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+#tooltip h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+#tooltip p {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 8px;
+}
+
+.tooltip-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.35);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }

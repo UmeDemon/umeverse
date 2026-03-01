@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Umeverse Inventory</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="inventory-container" class="hidden">
+        <div class="inventory-wrapper">
+            <!-- Player Inventory -->
+            <div class="inventory-panel" id="player-inventory">
+                <div class="panel-header">
+                    <h2>Inventory</h2>
+                    <div class="weight-bar">
+                        <div class="weight-fill" id="player-weight-fill"></div>
+                        <span id="player-weight-text">0 / 120kg</span>
+                    </div>
+                </div>
+                <div class="inventory-grid" id="player-grid"></div>
+            </div>
+
+            <!-- Secondary Inventory (Stash/Drop/Other Player) -->
+            <div class="inventory-panel" id="secondary-inventory">
+                <div class="panel-header">
+                    <h2 id="secondary-label">Stash</h2>
+                    <div class="weight-bar">
+                        <div class="weight-fill" id="secondary-weight-fill"></div>
+                        <span id="secondary-weight-text">0 / 120kg</span>
+                    </div>
+                </div>
+                <div class="inventory-grid" id="secondary-grid"></div>
+            </div>
+        </div>
+
+        <!-- Item Context Menu -->
+        <div id="context-menu" class="hidden">
+            <button class="ctx-btn" id="ctx-use">Use</button>
+            <button class="ctx-btn" id="ctx-give">Give</button>
+            <button class="ctx-btn" id="ctx-drop">Drop</button>
+            <button class="ctx-btn ctx-close" id="ctx-close">Close</button>
+        </div>
+
+        <!-- Item Tooltip -->
+        <div id="tooltip" class="hidden">
+            <h4 id="tooltip-name"></h4>
+            <p id="tooltip-desc"></p>
+            <div class="tooltip-meta">
+                <span id="tooltip-weight"></span>
+                <span id="tooltip-type"></span>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -31,12 +31,8 @@ tasks:
     dest: ./resources/oxmysql
 
   # ─── Download pma-voice ───
-  - action: download_file
-    url: https://github.com/AvarianKnight/pma-voice/releases/latest/download/pma-voice.zip
-    path: ./tmp/pma-voice.zip
-
-  - action: unzip
-    src: ./tmp/pma-voice.zip
+  - action: download_github
+    src: https://github.com/AvarianKnight/pma-voice
     dest: ./resources/pma-voice
 
   # ─── Download ox_lib ───

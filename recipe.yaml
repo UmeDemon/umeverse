@@ -94,9 +94,9 @@ tasks:
     src: ./tmp/umeverse/umeverse_bridge_tmc
     dest: ./resources/umeverse_bridge_tmc
 
-  # ─── Copy SQL file for manual import ───
+  # ─── Copy SQL file for database setup ───
   - action: move_path
-    src: ./tmp/umeverse/sql/umeverse.sql
+    src: ./tmp/umeverse/umeverse.sql
     dest: ./umeverse.sql
 
   # ─── Cleanup temp files ───
@@ -180,10 +180,17 @@ tasks:
       # ensure your_script_here
 
       # ─── Admin Permissions (ACE) ───
-      add_ace identifier.{{ownerIdentifier}} umeverse.owner allow
-      add_ace umeverse.owner umeverse.superadmin allow
-      add_ace umeverse.superadmin umeverse.admin allow
-      add_ace umeverse.admin umeverse.moderator allow
+      # Group hierarchy: owner > superadmin > admin > moderator
+      add_principal identifier.{{ownerIdentifier}} group.owner
+      add_principal group.owner group.superadmin
+      add_principal group.superadmin group.admin
+      add_principal group.admin group.moderator
+
+      # Grant ACE permissions to each group level
+      add_ace group.owner umeverse.owner allow
+      add_ace group.superadmin umeverse.superadmin allow
+      add_ace group.admin umeverse.admin allow
+      add_ace group.moderator umeverse.moderator allow
 
   # ─── Setup database ───
   - action: connect_database

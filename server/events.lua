@@ -22,19 +22,20 @@ end)
 
 -- ── Player loaded (called by database bridge or default handler) ──
 
-RegisterNetEvent('umeverse:server:playerLoaded', function(source, data)
-    local identifier = Ume.Functions.GetIdentifier(source)
+RegisterNetEvent('umeverse:server:playerLoaded', function()
+    local src = source
+    local identifier = Ume.Functions.GetIdentifier(src)
     if not identifier then return end
 
-    data = data or {}
+    local data = {}
     data.identifier = identifier
 
-    local player = Ume.Player.New(source, data)
-    Ume.Player.Set(source, player)
+    local player = Ume.Player.New(src, data)
+    Ume.Player.Set(src, player)
 
     -- Notify the client that the player data is ready.
-    TriggerClientEvent('umeverse:client:playerLoaded', source, player:GetData())
-    TriggerEvent('umeverse:server:playerSpawned', source, player)
+    TriggerClientEvent('umeverse:client:playerLoaded', src, player:GetData())
+    TriggerEvent('umeverse:server:playerSpawned', src, player)
 
     Ume.Functions.Log(('Player loaded: %s (%s)'):format(player.name, identifier))
 end)

@@ -47,6 +47,12 @@ end)
 
 --- Respawn
 RegisterNUICallback('respawn', function(_, cb)
+    -- Validate that the death timer has actually expired
+    if deathTimer > 0 then
+        cb('ok')
+        return
+    end
+
     SetNuiFocus(false, false)
     SendNUIMessage({ action = 'hideDeathScreen' })
 
@@ -57,8 +63,9 @@ RegisterNUICallback('respawn', function(_, cb)
     local coords = UmeConfig.HospitalSpawn
 
     NetworkResurrectLocalPlayer(coords.x, coords.y, coords.z, coords.w, 0, false)
-    SetEntityHealth(ped, GetEntityMaxHealth(ped))
-    ClearPedBloodDamage(ped)
+    local alivePed = PlayerPedId() -- re-fetch ped after resurrection
+    SetEntityHealth(alivePed, GetEntityMaxHealth(alivePed))
+    ClearPedBloodDamage(alivePed)
 
     TriggerServerEvent('umeverse:server:playerRespawned')
     TriggerEvent('umeverse:client:notify', _T('death_respawned'), 'info')
@@ -94,9 +101,6 @@ CreateThread(function()
         if UME.IsLoggedIn() and not UME.IsDead() and UmeConfig.EnableStatus then
             local playerData = UME.GetPlayerData()
             local status = playerData.status or {}
-
-            -- Decay hunger and thirst
-            TriggerServerEvent('umeverse:server:decayStatus')
 
             -- Client-side warnings
             if status.hunger and status.hunger < 25 then

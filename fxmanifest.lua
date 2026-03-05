@@ -1,9 +1,23 @@
+--[[
+    ╔══════════════════════════════════════════════════════════════════╗
+    ║  LEGACY / STANDALONE resource — kept for backwards compat.     ║
+    ║                                                                ║
+    ║  If you are using the modular Umeverse framework deployed by   ║
+    ║  the txAdmin recipe, do NOT ensure this resource.  Instead,    ║
+    ║  ensure umeverse_core (and the other umeverse_* resources).    ║
+    ║                                                                ║
+    ║  Running both this resource AND umeverse_core simultaneously   ║
+    ║  will cause conflicts (duplicate table schemas, duplicate      ║
+    ║  events, etc.).                                                ║
+    ╚══════════════════════════════════════════════════════════════════╝
+]]
+
 fx_version 'cerulean'
 game 'gta5'
 lua54 'yes'
 
 author 'UmeDemon'
-description 'UmeVerse - Custom FiveM Framework'
+description 'UmeVerse - Legacy Standalone Resource (use umeverse_core for modular framework)'
 version '1.0.0'
 
 shared_scripts {

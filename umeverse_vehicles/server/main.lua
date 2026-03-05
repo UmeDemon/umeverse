@@ -200,14 +200,101 @@ end)
 -- Give Vehicle Keys
 -- ═══════════════════════════════════════
 
+-- ═══════════════════════════════════════
+-- Load Vehicle Keys from DB on player join
+-- ═══════════════════════════════════════
+
+UME.RegisterServerCallback('umeverse_vehicles:getKeys', function(source, cb)
+    local player = UME.GetPlayer(source)
+    if not player then cb({}) return end
+
+    local rows = MySQL.query.await(
+        'SELECT plate FROM umeverse_vehicle_keys WHERE citizenid = ?',
+        { player:GetCitizenId() }
+    ) or {}
+
+    local keys = {}
+    for _, row in ipairs(rows) do
+        keys[#keys + 1] = row.plate
+    end
+    cb(keys)
+end)
+
+-- ═══════════════════════════════════════
+-- Give Vehicle Keys (persisted)
+-- ═══════════════════════════════════════
+
 RegisterNetEvent('umeverse_vehicles:server:giveKeys', function(plate, targetId)
     local src = source
     targetId = tonumber(targetId)
     if not targetId then return end
 
+    local player = UME.GetPlayer(src)
+    if not player then return end
+
+    -- Verify the caller owns this vehicle or already has keys
+    local owns = MySQL.scalar.await(
+        'SELECT COUNT(*) FROM umeverse_vehicles WHERE plate = ? AND citizenid = ?',
+        { plate, player:GetCitizenId() }
+    )
+    local hasKeys = MySQL.scalar.await(
+        'SELECT COUNT(*) FROM umeverse_vehicle_keys WHERE plate = ? AND citizenid = ?',
+        { plate, player:GetCitizenId() }
+    )
+    if (not owns or owns == 0) and (not hasKeys or hasKeys == 0) then
+        UME.Notify(src, 'You don\'t have keys to this vehicle.', 'error')
+        return
+    end
+
+    local targetPlayer = UME.GetPlayer(targetId)
+    if not targetPlayer then
+        UME.Notify(src, 'Player not found.', 'error')
+        return
+    end
+
+    -- Persist the key grant (INSERT IGNORE to avoid duplicates)
+    MySQL.insert(
+        'INSERT IGNORE INTO umeverse_vehicle_keys (plate, citizenid) VALUES (?, ?)',
+        { plate, targetPlayer:GetCitizenId() }
+    )
+
     TriggerClientEvent('umeverse_vehicles:client:receiveKeys', targetId, plate)
     UME.Notify(src, 'Keys given.', 'success')
     UME.Notify(targetId, 'You received vehicle keys.', 'info')
+end)
+
+-- ═══════════════════════════════════════
+-- Remove Vehicle Keys
+-- ═══════════════════════════════════════
+
+RegisterNetEvent('umeverse_vehicles:server:removeKeys', function(plate, targetId)
+    local src = source
+    targetId = tonumber(targetId)
+    if not targetId then return end
+
+    local player = UME.GetPlayer(src)
+    if not player then return end
+
+    -- Only vehicle owner can revoke keys
+    local owns = MySQL.scalar.await(
+        'SELECT COUNT(*) FROM umeverse_vehicles WHERE plate = ? AND citizenid = ?',
+        { plate, player:GetCitizenId() }
+    )
+    if not owns or owns == 0 then
+        UME.Notify(src, 'Only the vehicle owner can revoke keys.', 'error')
+        return
+    end
+
+    local targetPlayer = UME.GetPlayer(targetId)
+    if not targetPlayer then return end
+
+    MySQL.query('DELETE FROM umeverse_vehicle_keys WHERE plate = ? AND citizenid = ?',
+        { plate, targetPlayer:GetCitizenId() }
+    )
+
+    TriggerClientEvent('umeverse_vehicles:client:removeKeys', targetId, plate)
+    UME.Notify(src, 'Keys removed.', 'success')
+    UME.Notify(targetId, 'Vehicle keys revoked for plate: ' .. plate, 'info')
 end)
 
 -- ═══════════════════════════════════════

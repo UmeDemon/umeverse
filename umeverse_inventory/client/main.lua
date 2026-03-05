@@ -15,8 +15,9 @@ local drops = {}
 --- Key mapping to open inventory
 CreateThread(function()
     while true do
-        Wait(0)
+        local sleep = 500
         if UME.IsLoggedIn() and not UME.IsDead() then
+            sleep = 5 -- Responsive key check without burning CPU every frame
             if IsControlJustPressed(0, InvConfig.OpenControl) then
                 if isOpen then
                     CloseInventory()
@@ -24,9 +25,8 @@ CreateThread(function()
                     TriggerServerEvent('umeverse_inventory:server:openInventory', nil, nil)
                 end
             end
-        else
-            Wait(500)
         end
+        Wait(sleep)
     end
 end)
 

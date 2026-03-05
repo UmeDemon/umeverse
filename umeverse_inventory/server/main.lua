@@ -131,6 +131,10 @@ RegisterNetEvent('umeverse_inventory:server:moveItem', function(data)
     local itemName = data.item
     local amount = tonumber(data.amount) or 1
 
+    -- Validate amount (prevent negative / zero exploits)
+    if amount <= 0 then return end
+    amount = math.floor(amount)
+
     if fromType == 'player' and toType == 'player' then
         -- Just reorder within inventory (no-op on server)
         return
@@ -243,8 +247,14 @@ RegisterNetEvent('umeverse_inventory:server:useItem', function(itemName)
     local player = UME.GetPlayer(src)
     if not player then return end
 
+    -- Sanitize: only allow registered item names (alphanumeric + underscore)
+    if type(itemName) ~= 'string' or not itemName:match('^[%w_]+$') then return end
+
+    -- Only trigger if the item is actually registered and player has it
+    local itemDef = UME.GetItem(itemName)
+    if not itemDef then return end
+
     if player:HasItem(itemName) then
-        -- Trigger the usable item event, passing source in event name
         TriggerEvent('umeverse:server:useItem:' .. itemName, src)
     end
 end)
@@ -259,6 +269,23 @@ RegisterNetEvent('umeverse_inventory:server:dropItem', function(itemName, amount
     if not player then return end
 
     amount = tonumber(amount) or 1
+
+    -- Validate amount (prevent negative / zero exploits)
+    if amount <= 0 then return end
+    amount = math.floor(amount)
+
+    -- Validate coords are near the player (anti-teleport drop)
+    if coords then
+        local ped = GetPlayerPed(src)
+        if ped and DoesEntityExist(ped) then
+            local playerCoords = GetEntityCoords(ped)
+            local dist = #(vector3(coords.x, coords.y, coords.z) - playerCoords)
+            if dist > 10.0 then
+                UME.Notify(src, 'Too far away to drop items here.', 'error')
+                return
+            end
+        end
+    end
 
     if not player:HasItem(itemName, amount) then return end
 

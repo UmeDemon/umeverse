@@ -5,6 +5,13 @@
 --    mysql -u root -p your_database < sql/umeverse.sql
 -- ============================================================
 
+-- NOTE: This is the standalone/legacy schema used by the root resource's
+-- server/database.lua. If you are using umeverse_core (the modular framework),
+-- use umeverse.sql in the project root instead — it has the full multi-character
+-- schema with citizenid, charinfo, skin, status, etc.
+--
+-- This file is kept for backwards compatibility with single-character setups.
+
 CREATE TABLE IF NOT EXISTS `umeverse_players` (
     `id`         INT UNSIGNED    NOT NULL AUTO_INCREMENT,
     `identifier` VARCHAR(60)     NOT NULL,

@@ -74,7 +74,11 @@ function UME.Split(str, sep)
     return result
 end
 
---- Generate a unique ID
+-- Seed the PRNG once on load so IDs aren't predictable across restarts
+math.randomseed(os.time() + (tonumber(tostring({}):sub(8)) or 0))
+for _ = 1, 20 do math.random() end -- burn initial values for better entropy
+
+--- Generate a unique ID (UUID v4 format)
 ---@return string
 function UME.GenerateId()
     local template = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'

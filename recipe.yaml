@@ -1,6 +1,5 @@
-$engine: 2
+$engine: 1
 $onesync: on
-$minFxVersion: 5848
 
 name: Umeverse Framework
 version: 1.0.0
@@ -25,6 +24,15 @@ variables:
   ownerIdentifier:
     label: "Your FiveM License Identifier (type 'status' in console to find)"
     default: "license:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  identifierType:
+    label: "Player Identifier Type (license, steam, or discord)"
+    default: "license"
+  steamWebApiKey:
+    label: "Steam Web API Key (required only if using Steam identifier, leave blank otherwise)"
+    default: ""
+  discordWebhook:
+    label: "Discord Webhook URL for admin/server logs (optional, leave blank to disable)"
+    default: ""
 
 tasks:
   ##############################################
@@ -34,6 +42,15 @@ tasks:
     seconds: 5
     message: "Setting up Umeverse Framework..."
 
+  # ─── Download cfx-server-data (default FiveM resources) ───
+  - action: download_github
+    src: https://github.com/citizenfx/cfx-server-data
+    dest: ./tmp/cfx-server-data
+
+  - action: move_path
+    src: ./tmp/cfx-server-data/resources
+    dest: ./resources/[cfx-default]
+
   # ─── Download oxmysql (release build) ───
   - action: download_file
     url: https://github.com/overextended/oxmysql/releases/latest/download/oxmysql.zip
@@ -42,6 +59,24 @@ tasks:
   - action: unzip
     src: ./tmp/oxmysql.zip
     dest: ./resources/oxmysql
+
+  # ─── Download pma-voice ───
+  - action: download_file
+    url: https://github.com/AvarianKnight/pma-voice/releases/latest/download/pma-voice.zip
+    dest: ./tmp/pma-voice.zip
+
+  - action: unzip
+    src: ./tmp/pma-voice.zip
+    dest: ./resources/pma-voice
+
+  # ─── Download ox_lib ───
+  - action: download_file
+    url: https://github.com/overextended/ox_lib/releases/latest/download/ox_lib.zip
+    dest: ./tmp/ox_lib.zip
+
+  - action: unzip
+    src: ./tmp/ox_lib.zip
+    dest: ./resources/ox_lib
 
   # ─── Download Umeverse Framework ───
   - action: download_github
@@ -89,16 +124,41 @@ tasks:
     src: ./tmp/umeverse/umeverse_bridge_tmc
     dest: ./resources/umeverse_bridge_tmc
 
+  # ─── Copy SQL file for manual import ───
+  - action: move_path
+    src: ./tmp/umeverse/sql/umeverse.sql
+    dest: ./umeverse.sql
+
   # ─── Cleanup temp files ───
   - action: remove_path
     dest: ./tmp
 
   - action: waste_time
     seconds: 3
-    message: "Resources downloaded. Writing server configuration..."
+    message: "Resources downloaded. Configuring framework..."
 
   ##############################################
-  # STEP 2 — Generate server.cfg (MUST come before database setup)
+  # STEP 2 — Inject configuration values
+  ##############################################
+
+  # ─── Set identifier type in core config ───
+  - action: replace_string
+    file: ./resources/umeverse_core/config.lua
+    search: "UmeConfig.IdentifierType = 'license'"
+    replace: "UmeConfig.IdentifierType = '{{identifierType}}'"
+
+  # ─── Set Discord webhook in core config ───
+  - action: replace_string
+    file: ./resources/umeverse_core/config.lua
+    search: "UmeConfig.LogWebhook = ''"
+    replace: "UmeConfig.LogWebhook = '{{discordWebhook}}'"
+
+  - action: waste_time
+    seconds: 2
+    message: "Configuration injected. Writing server config..."
+
+  ##############################################
+  # STEP 3 — Generate server.cfg
   ##############################################
   - action: write_file
     dest: ./server.cfg
@@ -122,6 +182,9 @@ tasks:
       # License Key
       sv_licenseKey "{{svLicense}}"
 
+      # Steam Web API Key (leave empty if not using Steam identifiers)
+      set steam_webApiKey "{{steamWebApiKey}}"
+
       # OneSync (REQUIRED for Umeverse)
       set onesync on
 
@@ -138,6 +201,12 @@ tasks:
       # ─── Database Driver ───
       ensure oxmysql
 
+      # ─── Optional: Proximity Voice Chat (uncomment to enable) ───
+      #ensure pma-voice
+
+      # ─── Optional: Utility Library (uncomment to enable) ───
+      #ensure ox_lib
+
       # ─── Umeverse Framework (ORDER MATTERS) ───
       ensure umeverse_core
       ensure umeverse_inventory
@@ -147,14 +216,10 @@ tasks:
       ensure umeverse_weathersync
       ensure umeverse_appearance
 
-      # ─── Compatibility Bridges (uncomment as needed) ───
-      # ensure umeverse_bridge_qb    # QBCore / QBox scripts
-      # ensure umeverse_bridge_esx   # ESX scripts
-      # ensure umeverse_bridge_tmc   # TMC (The Mob City) scripts
-
-      # ─── Recommended Third-Party ───
-      # ensure pma-voice
-      # ensure ox_lib
+      # ─── Compatibility Bridges (uncomment ONE if needed) ───
+      #ensure umeverse_bridge_qb    # QBCore / QBox compatibility
+      #ensure umeverse_bridge_esx   # ESX compatibility
+      #ensure umeverse_bridge_tmc   # TMC (The Mob City) compatibility
 
       # ─── Your Additional Scripts ───
       # ensure your_script_here
@@ -167,115 +232,7 @@ tasks:
 
   - action: waste_time
     seconds: 2
-    message: "Server config written. Setting up database..."
-
-  ##############################################
-  # STEP 3 — Database Setup
-  ##############################################
-  - action: connect_database
-    name: umeverse
-    connection_string: "{{dbConnection}}"
-
-  - action: query_database
-    query: |
-      CREATE TABLE IF NOT EXISTS `umeverse_players` (
-          `id`            INT(11)         NOT NULL AUTO_INCREMENT,
-          `identifier`    VARCHAR(64)     NOT NULL,
-          `citizenid`     VARCHAR(50)     NOT NULL,
-          `firstname`     VARCHAR(50)     DEFAULT '',
-          `lastname`      VARCHAR(50)     DEFAULT '',
-          `charinfo`      LONGTEXT        DEFAULT '{}',
-          `money`         LONGTEXT        DEFAULT '{"cash":5000,"bank":10000,"black":0}',
-          `job`           LONGTEXT        DEFAULT '{"name":"unemployed","label":"Unemployed","grade":0,"gradelabel":"Freelancer","onduty":false}',
-          `position`      LONGTEXT        DEFAULT '{"x":-269.4,"y":-955.3,"z":31.2,"heading":205.0}',
-          `inventory`     LONGTEXT        DEFAULT '[]',
-          `status`        LONGTEXT        DEFAULT '{"hunger":100,"thirst":100,"stress":0}',
-          `skin`          LONGTEXT        DEFAULT '{}',
-          `metadata`      LONGTEXT        DEFAULT '{}',
-          `is_dead`       TINYINT(1)      DEFAULT 0,
-          `last_login`    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-          `created_at`    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
-          PRIMARY KEY (`id`),
-          UNIQUE KEY `uk_citizenid` (`citizenid`),
-          KEY `idx_identifier` (`identifier`)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-  - action: query_database
-    query: |
-      CREATE TABLE IF NOT EXISTS `umeverse_bans` (
-          `id`            INT(11)         NOT NULL AUTO_INCREMENT,
-          `identifier`    VARCHAR(64)     DEFAULT NULL,
-          `citizenid`     VARCHAR(50)     DEFAULT NULL,
-          `reason`        TEXT            DEFAULT NULL,
-          `banned_by`     VARCHAR(100)    DEFAULT 'System',
-          `permanent`     TINYINT(1)      DEFAULT 0,
-          `expires`       DATETIME        DEFAULT NULL,
-          `created_at`    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
-          PRIMARY KEY (`id`),
-          KEY `idx_ban_identifier` (`identifier`),
-          KEY `idx_ban_citizenid` (`citizenid`)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-  - action: query_database
-    query: |
-      CREATE TABLE IF NOT EXISTS `umeverse_vehicles` (
-          `id`            INT(11)         NOT NULL AUTO_INCREMENT,
-          `citizenid`     VARCHAR(50)     NOT NULL,
-          `plate`         VARCHAR(10)     NOT NULL,
-          `model`         VARCHAR(50)     NOT NULL,
-          `state`         TINYINT(1)      DEFAULT 1 COMMENT '0=out, 1=garaged, 2=impounded',
-          `garage`        VARCHAR(50)     DEFAULT 'legion',
-          `job`           VARCHAR(50)     DEFAULT NULL COMMENT 'NULL = personal, otherwise job name',
-          `fuel`          INT(3)          DEFAULT 100,
-          `body`          FLOAT           DEFAULT 1000.0,
-          `engine`        FLOAT           DEFAULT 1000.0,
-          `mods`          LONGTEXT        DEFAULT '{}',
-          `created_at`    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
-          PRIMARY KEY (`id`),
-          UNIQUE KEY `uk_plate` (`plate`),
-          KEY `idx_veh_citizenid` (`citizenid`),
-          KEY `idx_veh_state` (`state`)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-  - action: query_database
-    query: |
-      CREATE TABLE IF NOT EXISTS `umeverse_stashes` (
-          `stash_id`      VARCHAR(100)    NOT NULL,
-          `inventory`     LONGTEXT        DEFAULT '[]',
-          `updated_at`    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-          PRIMARY KEY (`stash_id`)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-  - action: query_database
-    query: |
-      CREATE TABLE IF NOT EXISTS `umeverse_transactions` (
-          `id`            INT(11)         NOT NULL AUTO_INCREMENT,
-          `citizenid`     VARCHAR(50)     NOT NULL,
-          `type`          VARCHAR(20)     NOT NULL COMMENT 'deposit, withdraw, transfer_in, transfer_out',
-          `amount`        INT(11)         NOT NULL DEFAULT 0,
-          `description`   VARCHAR(255)    DEFAULT '',
-          `created_at`    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
-          PRIMARY KEY (`id`),
-          KEY `idx_tx_citizenid` (`citizenid`),
-          KEY `idx_tx_type` (`type`),
-          KEY `idx_tx_created` (`created_at`)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-  - action: query_database
-    query: |
-      CREATE TABLE IF NOT EXISTS `umeverse_vehicle_keys` (
-          `id`            INT(11)         NOT NULL AUTO_INCREMENT,
-          `plate`         VARCHAR(10)     NOT NULL,
-          `citizenid`     VARCHAR(50)     NOT NULL,
-          `granted_at`    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
-          PRIMARY KEY (`id`),
-          UNIQUE KEY `uk_plate_citizen` (`plate`, `citizenid`),
-          KEY `idx_key_citizenid` (`citizenid`)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-  - action: waste_time
-    seconds: 3
-    message: "Database tables created. Finalizing setup..."
+    message: "Server config written. Finalizing setup..."
 
   ##############################################
   # STEP 4 — Done
@@ -285,10 +242,14 @@ tasks:
     message: |
       Umeverse Framework setup complete!
 
-      NEXT STEPS:
-      1. (Optional) Set your Discord webhook in resources/umeverse_core/config.lua → LogWebhook
-      2. Your ACE owner identifier is set to: {{ownerIdentifier}}
-         Change it in server.cfg if needed (type 'status' in console to find yours)
-      3. Click "Start Server" in txAdmin — you're ready to play!
+      IMPORTANT — DATABASE SETUP:
+      Import the file 'umeverse.sql' into your MySQL database manually.
+      You can do this with: mysql -u root -p umeverse < umeverse.sql
+      Or use phpMyAdmin / HeidiSQL to import it.
 
-      Start your server and connect!
+      NEXT STEPS:
+      1. Import umeverse.sql into your MySQL database
+      2. Edit server.cfg to uncomment pma-voice, ox_lib, or a bridge if desired
+      3. Your ACE owner identifier is set to: {{ownerIdentifier}}
+         Change it in server.cfg if needed (type 'status' in console to find yours)
+      4. Click "Start Server" in txAdmin — you're ready to play!

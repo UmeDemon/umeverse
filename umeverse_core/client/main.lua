@@ -188,6 +188,8 @@ end)
 -- ═══════════════════════════════════════
 -- Position Saving Thread
 -- ═══════════════════════════════════════
+local lastSavedPos = nil
+
 CreateThread(function()
     while true do
         Wait(30000) -- Every 30 seconds
@@ -195,12 +197,12 @@ CreateThread(function()
             local ped = PlayerPedId()
             local coords = GetEntityCoords(ped)
             local heading = GetEntityHeading(ped)
-            TriggerServerEvent('umeverse:server:updatePosition', {
-                x = coords.x,
-                y = coords.y,
-                z = coords.z,
-                heading = heading,
-            })
+
+            -- Only update if player has actually moved
+            if not lastSavedPos or #(vector3(lastSavedPos.x, lastSavedPos.y, lastSavedPos.z) - coords) > 1.0 then
+                lastSavedPos = { x = coords.x, y = coords.y, z = coords.z, heading = heading }
+                TriggerServerEvent('umeverse:server:updatePosition', lastSavedPos)
+            end
         end
     end
 end)

@@ -248,7 +248,7 @@ RegisterNetEvent('umeverse_inventory:server:useItem', function(itemName)
     if not player then return end
 
     -- Sanitize: only allow registered item names (alphanumeric + underscore)
-    if type(itemName) ~= 'string' or not itemName:match('^[%w_]+$') then return end
+    if type(itemName) ~= 'string' or not itemName:match('^[%w_%-]+$') then return end
 
     -- Only trigger if the item is actually registered and player has it
     local itemDef = UME.GetItem(itemName)
@@ -257,6 +257,28 @@ RegisterNetEvent('umeverse_inventory:server:useItem', function(itemName)
     if player:HasItem(itemName) then
         TriggerEvent('umeverse:server:useItem:' .. itemName, src)
     end
+end)
+
+-- ═══════════════════════════════════════
+-- Hotbar (keys 1-5 → use item in that slot)
+-- ═══════════════════════════════════════
+
+RegisterNetEvent('umeverse_inventory:server:useHotbarSlot', function(slot)
+    local src = source
+    local player = UME.GetPlayer(src)
+    if not player then return end
+
+    -- Validate slot (1-5)
+    if type(slot) ~= 'number' or slot < 1 or slot > 5 then return end
+
+    local inventory = player:GetInventory()
+    local item = inventory[slot]
+    if not item or not item.name then return end
+
+    local itemDef = UME.GetItem(item.name)
+    if not itemDef or not itemDef.usable then return end
+
+    TriggerEvent('umeverse:server:useItem:' .. item.name, src)
 end)
 
 -- ═══════════════════════════════════════

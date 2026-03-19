@@ -10,9 +10,12 @@
     box-sizing: border-box;
 }
 
+html { background: transparent; }
+
 body {
     font-family: 'Inter', sans-serif;
     color: #fff;
+    background: transparent;
     overflow: hidden;
     user-select: none;
 }
@@ -29,8 +32,7 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(4px);
+    background: transparent;
 }
 
 .inventory-wrapper {
@@ -42,7 +44,6 @@ body {
 
 .inventory-panel {
     background: rgba(12, 12, 30, 0.92);
-    backdrop-filter: blur(30px);
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 16px;
     padding: 20px;
@@ -167,12 +168,29 @@ body {
     color: rgba(255, 255, 255, 0.35);
 }
 
+/* ══ Hotbar Badge ══ */
+
+.hotbar-badge {
+    position: absolute;
+    top: 3px;
+    left: 5px;
+    font-size: 9px;
+    font-weight: 700;
+    color: rgba(96, 165, 250, 0.7);
+    background: rgba(96, 165, 250, 0.1);
+    border: 1px solid rgba(96, 165, 250, 0.2);
+    padding: 0 4px;
+    border-radius: 4px;
+    line-height: 16px;
+    z-index: 2;
+    pointer-events: none;
+}
+
 /* ══ Context Menu ══ */
 
 #context-menu {
     position: fixed;
     background: rgba(15, 15, 35, 0.95);
-    backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 10px;
     padding: 6px;
@@ -210,7 +228,6 @@ body {
 #tooltip {
     position: fixed;
     background: rgba(15, 15, 35, 0.95);
-    backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 10px;
     padding: 14px 16px;

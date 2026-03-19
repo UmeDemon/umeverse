@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coordinate Recorder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container" id="mainContainer">
+        <div class="header">
+            <div class="header-content">
+                <h1>📍 Coordinate Recorder</h1>
+                <span class="coord-count">Recorded: <span id="coordCount">0</span> points</span>
+            </div>
+            <button class="close-btn" id="closeBtn">✕</button>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="list">Coordinates List</button>
+            <button class="tab-btn" data-tab="vector3">Vector3</button>
+            <button class="tab-btn" data-tab="vector4">Vector4</button>
+            <button class="tab-btn" data-tab="table">Table</button>
+            <button class="tab-btn" data-tab="json">JSON</button>
+            <button class="tab-btn" data-tab="simple">Simple</button>
+        </div>
+        
+        <div class="content">
+            <!-- Coordinates List Tab -->
+            <div class="tab-content active" id="tab-list">
+                <div class="coords-list" id="coordsList">
+                    <!-- Coordinates will be populated here -->
+                </div>
+            </div>
+            
+            <!-- Vector3 Tab -->
+            <div class="tab-content" id="tab-vector3">
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Vector3 Format</span>
+                        <button class="copy-btn" data-format="vector3">📋 Copy</button>
+                    </div>
+                    <pre id="vector3Output"></pre>
+                </div>
+            </div>
+            
+            <!-- Vector4 Tab -->
+            <div class="tab-content" id="tab-vector4">
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Vector4 Format (with heading)</span>
+                        <button class="copy-btn" data-format="vector4">📋 Copy</button>
+                    </div>
+                    <pre id="vector4Output"></pre>
+                </div>
+            </div>
+            
+            <!-- Table Tab -->
+            <div class="tab-content" id="tab-table">
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Lua Table Format</span>
+                        <button class="copy-btn" data-format="table">📋 Copy</button>
+                    </div>
+                    <pre id="tableOutput"></pre>
+                </div>
+            </div>
+            
+            <!-- JSON Tab -->
+            <div class="tab-content" id="tab-json">
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>JSON Format</span>
+                        <button class="copy-btn" data-format="json">📋 Copy</button>
+                    </div>
+                    <pre id="jsonOutput"></pre>
+                </div>
+            </div>
+            
+            <!-- Simple Tab -->
+            <div class="tab-content" id="tab-simple">
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Simple Format (x, y, z, h per line)</span>
+                        <button class="copy-btn" data-format="simple">📋 Copy</button>
+                    </div>
+                    <pre id="simpleOutput"></pre>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <button class="action-btn secondary" id="startNewBtn">🔄 Start New Recording</button>
+            <button class="action-btn primary" id="closeRecorderBtn">✓ Done</button>
+        </div>
+        
+        <!-- Copy notification -->
+        <div class="copy-notification" id="copyNotification">
+            ✓ Copied to clipboard!
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>

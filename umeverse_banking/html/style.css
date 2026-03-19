@@ -6,9 +6,12 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+html { background: transparent; }
+
 body {
     font-family: 'Inter', sans-serif;
     color: #fff;
+    background: transparent;
     overflow: hidden;
     user-select: none;
 }
@@ -23,13 +26,11 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(6px);
+    background: transparent;
 }
 
 .bank-panel {
     background: rgba(10, 10, 28, 0.95);
-    backdrop-filter: blur(40px);
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 20px;
     padding: 32px;

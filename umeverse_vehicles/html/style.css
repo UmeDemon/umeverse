@@ -5,6 +5,8 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+html { background: transparent; }
+
 body {
     background: transparent;
     overflow: hidden;
@@ -22,7 +24,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.5);
+    background: transparent;
     z-index: 9999;
 }
 

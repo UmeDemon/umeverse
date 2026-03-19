@@ -9,26 +9,34 @@ local currentInvId = nil
 local drops = {}
 
 -- ═══════════════════════════════════════
--- Open / Close
+-- Open / Close (rebindable via FiveM Settings > Key Bindings)
 -- ═══════════════════════════════════════
 
---- Key mapping to open inventory
-CreateThread(function()
-    while true do
-        local sleep = 500
-        if UME.IsLoggedIn() and not UME.IsDead() then
-            sleep = 5 -- Responsive key check without burning CPU every frame
-            if IsControlJustPressed(0, InvConfig.OpenControl) then
-                if isOpen then
-                    CloseInventory()
-                else
-                    TriggerServerEvent('umeverse_inventory:server:openInventory', nil, nil)
-                end
-            end
+RegisterCommand('+umeverse_inventory', function()
+    if UME.IsLoggedIn() and not UME.IsDead() then
+        if isOpen then
+            CloseInventory()
+        else
+            TriggerServerEvent('umeverse_inventory:server:openInventory', nil, nil)
         end
-        Wait(sleep)
     end
-end)
+end, false)
+RegisterCommand('-umeverse_inventory', function() end, false)
+RegisterKeyMapping('+umeverse_inventory', 'Open Inventory', 'keyboard', InvConfig.OpenKey or 'F2')
+
+-- ═══════════════════════════════════════
+-- Hotbar Keys (1-5 → use item in that inventory slot)
+-- ═══════════════════════════════════════
+
+for i = 1, 5 do
+    RegisterCommand('+umeverse_hotbar_' .. i, function()
+        if UME.IsLoggedIn() and not UME.IsDead() and not isOpen then
+            TriggerServerEvent('umeverse_inventory:server:useHotbarSlot', i)
+        end
+    end, false)
+    RegisterCommand('-umeverse_hotbar_' .. i, function() end, false)
+    RegisterKeyMapping('+umeverse_hotbar_' .. i, 'Hotbar Slot ' .. i, 'keyboard', tostring(i))
+end
 
 RegisterNetEvent('umeverse_inventory:client:openInventory', function(data)
     isOpen = true

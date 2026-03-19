@@ -1,0 +1,23 @@
+:root {
+  --color-bg-root: #090a10;
+  --color-bg-base: #0f111a;
+  --color-bg-elevated: #1a1d29;
+  --color-green: #00ff9d;
+  --color-green-glow: rgba(0, 255, 157, 0.4);
+  --color-red: #ff4757;
+  --color-orange: #ffa502;
+  --font-display: "Rajdhani", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --glass-bg: rgba(20, 23, 33, 0.95);
+  --bg-panel: rgba(15, 17, 26, 0.6);
+  --bg-solid: #141721;
+  --accent: #00f0ff;
+  --accent-glow: rgba(0, 240, 255, 0.5);
+  --text-main: #ffffff;
+  --text-secondary: #8b9bb4;
+  --text-dim: #6b7280;
+  --border: rgba(255, 255, 255, 0.08);
+  --window-bar: rgba(255, 255, 255, 0.03);
+  --tooltip: rgba(75, 77, 86, 0.99);
+  --clock: rgba(255, 255, 255, 0.75);
+}

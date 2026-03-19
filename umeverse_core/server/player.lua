@@ -28,6 +28,15 @@ function UME.LoadPlayer(source, citizenid)
     end
 
     local self = setmetatable({}, UME.PlayerClass)
+
+    -- Copy all class methods directly onto the instance so they survive
+    -- cross-resource export boundaries (FiveM strips metatables on transfer)
+    for k, v in pairs(UME.PlayerClass) do
+        if type(v) == 'function' then
+            self[k] = v
+        end
+    end
+
     self.source     = source
     self.citizenid  = data.citizenid
     self.identifier = data.identifier
@@ -52,6 +61,9 @@ function UME.LoadPlayer(source, citizenid)
             self.job.gradelabel = gradeData.name
         end
     end
+
+    -- Compatibility: QBCore / TMC style scripts access player.PlayerData.*
+    self.PlayerData = self
 
     -- Register player
     UME.Players[source] = self

@@ -322,23 +322,28 @@ end
 
 local seatbeltOn = false
 
+-- Seatbelt toggle (rebindable via FiveM Settings > Key Bindings)
+RegisterCommand('+umeverse_seatbelt', function()
+    if UME.IsLoggedIn() and IsPedInAnyVehicle(PlayerPedId(), false) then
+        seatbeltOn = not seatbeltOn
+        TriggerEvent('umeverse:client:notify', seatbeltOn and 'Seatbelt on' or 'Seatbelt off', 'info')
+    end
+end, false)
+RegisterCommand('-umeverse_seatbelt', function() end, false)
+RegisterKeyMapping('+umeverse_seatbelt', 'Toggle Seatbelt', 'keyboard', 'k')
+
+-- Seatbelt effect: block exiting vehicle while buckled
 CreateThread(function()
     while true do
-        local sleep = 500
-        if UME.IsLoggedIn() and IsPedInAnyVehicle(PlayerPedId(), false) then
-            sleep = 5 -- Responsive key check while in vehicle
-            if IsControlJustPressed(0, 311) then -- K
-                seatbeltOn = not seatbeltOn
-                TriggerEvent('umeverse:client:notify', seatbeltOn and 'Seatbelt on' or 'Seatbelt off', 'info')
-            end
-
-            if seatbeltOn then
-                DisableControlAction(0, 75, true) -- Disable exit vehicle (must unbuckle first)
-            end
+        if seatbeltOn and IsPedInAnyVehicle(PlayerPedId(), false) then
+            DisableControlAction(0, 75, true) -- Disable exit vehicle
+            Wait(0)
         else
-            seatbeltOn = false
+            if seatbeltOn and not IsPedInAnyVehicle(PlayerPedId(), false) then
+                seatbeltOn = false
+            end
+            Wait(500)
         end
-        Wait(sleep)
     end
 end)
 
@@ -348,6 +353,7 @@ end)
 
 exports('HasVehicleKeys', HasVehicleKeys)
 exports('GetSpawnedVehicles', function() return spawnedVehicles end)
+exports('IsSeatbeltOn', function() return seatbeltOn end)
 
 -- ═══════════════════════════════════════
 -- Cleanup on resource stop

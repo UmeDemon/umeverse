@@ -183,6 +183,70 @@ RegisterNetEvent('umeverse_admin:server:action', function(action, data)
     elseif action == 'spawn_vehicle' then
         TriggerClientEvent('umeverse_admin:client:spawnVehicle', src, data.model)
 
+    elseif action == 'despawn_vehicle' then
+        TriggerClientEvent('umeverse_admin:client:despawnVehicle', src)
+
+    elseif action == 'heal' then
+        local targetId = data.targetId or src
+        local target = UME.GetPlayer(targetId)
+        if target then
+            target:SetStatus('hunger', 100)
+            target:SetStatus('thirst', 100)
+            TriggerClientEvent('umeverse:client:heal', targetId, 999)
+            UME.Notify(src, 'Player fully healed.', 'success')
+            UME.Notify(targetId, 'You have been fully healed by an admin.', 'success')
+        end
+
+    elseif action == 'remove_money' then
+        local target = UME.GetPlayer(data.targetId)
+        if target then
+            target:RemoveMoney(data.moneyType or 'cash', data.amount, 'Admin remove')
+            UME.Notify(src, 'Money removed.', 'success')
+        end
+
+    elseif action == 'clear_inventory' then
+        local target = UME.GetPlayer(data.targetId)
+        if target then
+            target.inventory = {}
+            TriggerClientEvent('umeverse:client:updateInventory', data.targetId, {})
+            UME.Notify(src, 'Inventory cleared.', 'success')
+            UME.Notify(data.targetId, 'Your inventory has been cleared by an admin.', 'error')
+            UME.Log('Admin Clear Inventory', adminName .. ' cleared inventory of ' .. target:GetFullName(), 16711680)
+        end
+
+    elseif action == 'invisible' then
+        TriggerClientEvent('umeverse_admin:client:toggleInvisible', src)
+
+    elseif action == 'teleport_coords' then
+        local x = tonumber(data.x)
+        local y = tonumber(data.y)
+        local z = tonumber(data.z)
+        if x and y and z then
+            TriggerClientEvent('umeverse:client:teleport', src, x, y, z)
+        end
+
+    elseif action == 'announce' then
+        local msg = data.message
+        if msg and msg ~= '' then
+            TriggerClientEvent('umeverse:client:notify', -1, '📢 ' .. msg, 'info', 10000)
+            UME.Log('Admin Announce', adminName .. ': ' .. msg, 3447003)
+        end
+
+    elseif action == 'set_weather' then
+        local weather = data.weather
+        if weather and weather ~= '' then
+            TriggerClientEvent('umeverse_admin:client:setWeather', -1, weather)
+            UME.Notify(src, 'Weather set to: ' .. weather, 'success')
+        end
+
+    elseif action == 'set_time' then
+        local hour = tonumber(data.hour)
+        local minute = tonumber(data.minute) or 0
+        if hour then
+            TriggerClientEvent('umeverse_admin:client:setTime', -1, hour, minute)
+            UME.Notify(src, string.format('Time set to %02d:%02d', hour, minute), 'success')
+        end
+
     elseif action == 'freeze' then
         TriggerClientEvent('umeverse_admin:client:freezePlayer', data.targetId)
 

@@ -89,12 +89,13 @@ end)
 --- Player dropped
 AddEventHandler('playerDropped', function(reason)
     local src = source
+    local playerName = GetPlayerName(src) or 'Unknown'
     local player = UME.GetPlayer(src)
 
     if player then
         player:Save()
         UME.Players[src] = nil
-        UME.Debug('Player dropped: ' .. GetPlayerName(src) .. ' (' .. reason .. ')')
+        UME.Debug('Player dropped: ' .. playerName .. ' (' .. (reason or 'Unknown') .. ')')
         TriggerEvent('umeverse:server:playerDropped', src, reason)
     end
 end)

@@ -132,6 +132,8 @@ document.querySelectorAll('.action-card').forEach(card => {
         const action = card.dataset.action;
         if (action === 'revive_self') {
             sendAction('revive', {});
+        } else if (action === 'heal_self') {
+            sendAction('heal', {});
         } else {
             sendAction(action, {});
         }
@@ -143,6 +145,14 @@ document.getElementById('btn-spawn-vehicle').addEventListener('click', () => {
     if (!model) return;
     sendAction('spawn_vehicle', { model });
     document.getElementById('spawn-model').value = '';
+});
+
+document.getElementById('btn-tp-coords').addEventListener('click', () => {
+    const x = document.getElementById('tp-x').value;
+    const y = document.getElementById('tp-y').value;
+    const z = document.getElementById('tp-z').value;
+    if (!x || !y || !z) return;
+    sendAction('teleport_coords', { x: parseFloat(x), y: parseFloat(y), z: parseFloat(z) });
 });
 
 // ──── Manage Actions ────
@@ -163,6 +173,10 @@ document.getElementById('btn-revive-target').addEventListener('click', () => {
     sendAction('revive', { targetId: getTargetId() });
 });
 
+document.getElementById('btn-heal-target').addEventListener('click', () => {
+    sendAction('heal', { targetId: getTargetId() });
+});
+
 document.getElementById('btn-freeze').addEventListener('click', () => {
     sendAction('freeze', { targetId: getTargetId() });
 });
@@ -176,6 +190,14 @@ document.getElementById('btn-give-money').addEventListener('click', () => {
     const amount = parseInt(document.getElementById('money-amount').value);
     if (!amount || amount <= 0) return;
     sendAction('give_money', { targetId: getTargetId(), moneyType, amount });
+    document.getElementById('money-amount').value = '';
+});
+
+document.getElementById('btn-remove-money').addEventListener('click', () => {
+    const moneyType = document.getElementById('money-type').value;
+    const amount = parseInt(document.getElementById('money-amount').value);
+    if (!amount || amount <= 0) return;
+    sendAction('remove_money', { targetId: getTargetId(), moneyType, amount });
     document.getElementById('money-amount').value = '';
 });
 
@@ -202,6 +224,33 @@ document.getElementById('btn-ban').addEventListener('click', () => {
     if (confirm(`Ban player for ${duration === 0 ? 'PERMANENTLY' : duration + ' hours'}?`)) {
         sendAction('ban', { targetId: getTargetId(), reason, duration });
     }
+});
+
+document.getElementById('btn-clear-inv').addEventListener('click', () => {
+    if (confirm('Clear this player\'s entire inventory?')) {
+        sendAction('clear_inventory', { targetId: getTargetId() });
+    }
+});
+
+// ──── Server Actions ────
+
+document.getElementById('btn-announce').addEventListener('click', () => {
+    const msg = document.getElementById('announce-msg').value.trim();
+    if (!msg) return;
+    sendAction('announce', { message: msg });
+    document.getElementById('announce-msg').value = '';
+});
+
+document.getElementById('btn-set-weather').addEventListener('click', () => {
+    const weather = document.getElementById('weather-select').value;
+    sendAction('set_weather', { weather });
+});
+
+document.getElementById('btn-set-time').addEventListener('click', () => {
+    const hour = parseInt(document.getElementById('time-hour').value);
+    const minute = parseInt(document.getElementById('time-minute').value) || 0;
+    if (isNaN(hour)) return;
+    sendAction('set_time', { hour, minute });
 });
 
 // ──── Ban List ────

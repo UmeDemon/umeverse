@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="background:transparent!important">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Umeverse Admin</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body style="background:transparent!important">
     <div id="admin-container" class="hidden">
         <div class="admin-panel">
             <!-- Header -->
@@ -23,6 +23,7 @@
                 <button class="admin-tab active" data-tab="players">Players</button>
                 <button class="admin-tab" data-tab="actions">Quick Actions</button>
                 <button class="admin-tab" data-tab="manage">Player Manage</button>
+                <button class="admin-tab" data-tab="server">Server</button>
                 <button class="admin-tab" data-tab="bans">Bans</button>
             </div>
 
@@ -53,12 +54,32 @@
                         <span class="action-icon">❤️</span>
                         <span>Revive Self</span>
                     </button>
+                    <button class="action-card" data-action="heal_self">
+                        <span class="action-icon">💚</span>
+                        <span>Heal Self (Full)</span>
+                    </button>
+                    <button class="action-card" data-action="invisible">
+                        <span class="action-icon">🫥</span>
+                        <span>Toggle Invisible</span>
+                    </button>
+                    <button class="action-card" data-action="despawn_vehicle">
+                        <span class="action-icon">🗑️</span>
+                        <span>Despawn Vehicle</span>
+                    </button>
                 </div>
 
                 <div class="section-title">Spawn Vehicle</div>
                 <div class="inline-form">
                     <input type="text" id="spawn-model" placeholder="Vehicle model (e.g. adder)">
                     <button class="btn btn-primary" id="btn-spawn-vehicle">Spawn</button>
+                </div>
+
+                <div class="section-title">Teleport to Coords</div>
+                <div class="inline-form">
+                    <input type="number" id="tp-x" placeholder="X" step="any">
+                    <input type="number" id="tp-y" placeholder="Y" step="any">
+                    <input type="number" id="tp-z" placeholder="Z" step="any">
+                    <button class="btn btn-primary btn-sm" id="btn-tp-coords">Go</button>
                 </div>
             </div>
 
@@ -73,6 +94,7 @@
                     <button class="btn btn-sm" id="btn-goto">Go To</button>
                     <button class="btn btn-sm" id="btn-bring">Bring</button>
                     <button class="btn btn-sm" id="btn-revive-target">Revive</button>
+                    <button class="btn btn-sm" id="btn-heal-target">Full Heal</button>
                     <button class="btn btn-sm" id="btn-freeze">Freeze</button>
                     <button class="btn btn-sm" id="btn-spectate">Spectate</button>
                 </div>
@@ -85,6 +107,7 @@
                     </select>
                     <input type="number" id="money-amount" placeholder="Amount">
                     <button class="btn btn-primary btn-sm" id="btn-give-money">Give</button>
+                    <button class="btn btn-danger btn-sm" id="btn-remove-money">Remove</button>
                 </div>
 
                 <div class="section-title">Set Job</div>
@@ -109,6 +132,44 @@
                     <button class="btn btn-danger btn-sm" id="btn-kick">Kick</button>
                     <input type="number" id="ban-duration" placeholder="Hours (0=perm)" value="0" min="0">
                     <button class="btn btn-danger btn-sm" id="btn-ban">Ban</button>
+                </div>
+
+                <div class="section-title danger" style="margin-top:16px">Destructive</div>
+                <div class="inline-form">
+                    <button class="btn btn-danger btn-sm" id="btn-clear-inv">Clear Inventory</button>
+                </div>
+            </div>
+
+            <!-- Server Tab -->
+            <div class="admin-content" id="tab-server">
+                <div class="section-title">Announcement</div>
+                <div class="inline-form">
+                    <input type="text" id="announce-msg" placeholder="Message to all players">
+                    <button class="btn btn-primary btn-sm" id="btn-announce">Send</button>
+                </div>
+
+                <div class="section-title">Set Weather</div>
+                <div class="inline-form">
+                    <select id="weather-select">
+                        <option value="CLEAR">Clear</option>
+                        <option value="EXTRASUNNY">Extra Sunny</option>
+                        <option value="CLOUDS">Cloudy</option>
+                        <option value="OVERCAST">Overcast</option>
+                        <option value="RAIN">Rain</option>
+                        <option value="THUNDER">Thunder</option>
+                        <option value="CLEARING">Clearing</option>
+                        <option value="FOGGY">Foggy</option>
+                        <option value="SMOG">Smog</option>
+                        <option value="XMAS">Snow</option>
+                    </select>
+                    <button class="btn btn-primary btn-sm" id="btn-set-weather">Set</button>
+                </div>
+
+                <div class="section-title">Set Time</div>
+                <div class="inline-form">
+                    <input type="number" id="time-hour" placeholder="Hour (0-23)" min="0" max="23" value="12">
+                    <input type="number" id="time-minute" placeholder="Minute (0-59)" min="0" max="59" value="0">
+                    <button class="btn btn-primary btn-sm" id="btn-set-time">Set</button>
                 </div>
             </div>
 

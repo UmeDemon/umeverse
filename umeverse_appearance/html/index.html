@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="background:transparent!important">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Appearance</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body style="background:transparent!important">
     <div id="appearance-container" class="hidden">
         <div class="appear-panel">
             <div class="appear-header">
                 <h2 id="panel-title">Clothing Store</h2>
                 <div class="rotate-btns">
-                    <button class="rotate-btn" onclick="rotatePed(-15)">&#8592;</button>
-                    <button class="rotate-btn" onclick="rotatePed(15)">&#8594;</button>
+                    <button class="rotate-btn" id="btn-rotate-left">&#8592;</button>
+                    <button class="rotate-btn" id="btn-rotate-right">&#8594;</button>
                 </div>
             </div>
             <div class="appear-body">
@@ -24,8 +24,8 @@
                 <div class="sliders-area" id="sliders-area"></div>
             </div>
             <div class="appear-footer">
-                <button class="btn btn-cancel" onclick="cancelAppearance()">Cancel</button>
-                <button class="btn btn-save" onclick="saveAppearance()">Save</button>
+                <button class="btn btn-cancel" id="btn-cancel">Cancel</button>
+                <button class="btn btn-save" id="btn-save">Save</button>
             </div>
         </div>
     </div>

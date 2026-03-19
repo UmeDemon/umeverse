@@ -101,6 +101,15 @@ end
 ---@param itemName string
 ---@param cb function
 function UME.RegisterUsableItem(itemName, cb)
+    -- Handle local server TriggerEvent (from inventory resource, src passed as arg)
+    AddEventHandler('umeverse:server:useItem:' .. itemName, function(src)
+        local player = UME.GetPlayer(src)
+        if player and player:HasItem(itemName) then
+            cb(src, player, itemName)
+        end
+    end)
+
+    -- Handle direct client TriggerServerEvent (from UME.UseItem, source is network)
     RegisterNetEvent('umeverse:server:useItem:' .. itemName, function()
         local src = source
         local player = UME.GetPlayer(src)
@@ -176,3 +185,25 @@ UME.RegisterUsableItem('painkillers', function(src, player)
     TriggerClientEvent('umeverse:client:heal', src, 25)
     UME.Notify(src, _T('item_used', 'Painkillers'), 'success')
 end)
+
+-- ═══════════════════════════════════════
+-- Compatibility Layer (QBCore / TMC style)
+-- Maps TMC.Functions.* calls to UME.* equivalents
+-- ═══════════════════════════════════════
+UME.Functions.GetPlayer = UME.GetPlayer
+UME.Functions.GetPlayers = UME.GetPlayers
+UME.Functions.GetTMCPlayers = UME.GetPlayers
+UME.Functions.GetPlayerByCitizenId = UME.GetPlayerByCitizenId
+UME.Functions.GetIdentifier = UME.GetIdentifier
+UME.Functions.GetPlayerCount = UME.GetPlayerCount
+UME.Functions.CreateCallback = UME.RegisterServerCallback
+UME.Functions.CreateServerCallback = UME.RegisterServerCallback
+UME.Functions.TriggerClientCallback = UME.TriggerClientCallback
+UME.Functions.CreateUseableItem = UME.RegisterUsableItem
+UME.Functions.HasPermission = UME.HasPermission
+UME.Functions.Notify = function(source, msg, notifType, duration)
+    UME.Notify(source, msg, notifType, duration)
+end
+UME.Functions.GetPlayersWithJob = UME.GetPlayersWithJob
+UME.Functions.GetOnDutyPlayers = UME.GetOnDutyPlayers
+UME.Functions.Log = UME.Log

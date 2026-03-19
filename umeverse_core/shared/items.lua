@@ -24,6 +24,7 @@ UME.Items = {
     ['lockpick']    = { label = 'Lockpick',    weight = 100,  type = 'tool',     image = 'lockpick.png',    usable = true,  unique = false, description = 'A lockpick tool' },
     ['repairkit']   = { label = 'Repair Kit',  weight = 2500, type = 'tool',     image = 'repairkit.png',   usable = true,  unique = false, description = 'Vehicle repair kit' },
     ['advancedrepairkit'] = { label = 'Advanced Repair Kit', weight = 3000, type = 'tool', image = 'advancedrepairkit.png', usable = true, unique = false, description = 'Advanced vehicle repair kit' },
+    ['mi_tablet']    = { label = 'MI Tablet', weight = 800, type = 'misc', image = 'mi_tablet.png', usable = true, unique = true, description = 'A high-tech tablet' },
 
     -- ID & Documents
     ['id_card']     = { label = 'ID Card',     weight = 0,    type = 'document', image = 'id_card.png',     usable = true,  unique = true,  description = 'Government issued ID' },

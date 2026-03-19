@@ -75,7 +75,9 @@ function UME.Split(str, sep)
 end
 
 -- Seed the PRNG once on load so IDs aren't predictable across restarts
-math.randomseed(os.time() + (tonumber(tostring({}):sub(8)) or 0))
+-- os.time() is unavailable on client-side FiveM Lua, fall back to GetGameTimer()
+local _seed = (os and os.time and os.time() or GetGameTimer()) + (tonumber(tostring({}):sub(8)) or 0)
+math.randomseed(_seed)
 for _ = 1, 20 do math.random() end -- burn initial values for better entropy
 
 --- Generate a unique ID (UUID v4 format)

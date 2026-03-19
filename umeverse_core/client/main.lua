@@ -46,6 +46,23 @@ end)
 -- Player Data Events
 -- ═══════════════════════════════════════
 
+--- Helper to dismiss the loading screen and fade in
+local loadingScreenDismissed = false
+function DismissLoadingScreen()
+    if loadingScreenDismissed then return end
+    loadingScreenDismissed = true
+
+    ShutdownLoadingScreen()
+    ShutdownLoadingScreenNui()
+
+    if IsScreenFadedOut() then
+        DoScreenFadeIn(500)
+        while not IsScreenFadedIn() do
+            Wait(0)
+        end
+    end
+end
+
 --- Player loaded with character data
 RegisterNetEvent('umeverse:client:playerLoaded', function(data)
     PlayerData = data
@@ -64,23 +81,39 @@ RegisterNetEvent('umeverse:client:playerLoaded', function(data)
         SetModelAsNoLongerNeeded(model)
     end
 
+    -- IMPORTANT: After SetPlayerModel the ped handle changes, must re-fetch it
+    local ped = PlayerPedId()
+
+    -- Give freemode model default clothing so the player isn't invisible
+    SetPedDefaultComponentVariation(ped)
+
     -- Spawn player at saved position
     local pos = data.position
     if pos then
-        local ped = PlayerPedId()
-
-        -- Freeze and set position
+        -- Freeze player while loading collision
+        FreezeEntityPosition(ped, true)
         SetEntityCoords(ped, pos.x, pos.y, pos.z, false, false, false, false)
         SetEntityHeading(ped, pos.heading or 0.0)
+
+        -- Wait for collision to load around the player
+        RequestCollisionAtCoord(pos.x, pos.y, pos.z)
+        local collTimeout = GetGameTimer()
+        while not HasCollisionLoadedAroundEntity(ped) and (GetGameTimer() - collTimeout) < 5000 do
+            Wait(0)
+        end
+
         FreezeEntityPosition(ped, false)
     end
 
+    -- Dismiss the loading screen and fade in
+    DismissLoadingScreen()
+
     -- PvP setting
-    SetCanAttackFriendly(PlayerPedId(), UmeConfig.EnablePvP, false)
+    SetCanAttackFriendly(ped, UmeConfig.EnablePvP, false)
     NetworkSetFriendlyFireOption(UmeConfig.EnablePvP)
 
     -- Remove default weapon
-    RemoveAllPedWeapons(PlayerPedId(), true)
+    RemoveAllPedWeapons(ped, true)
 
     -- Notify
     TriggerEvent('umeverse:client:notify', string.format(_T('player_loaded'), UmeConfig.ServerName), 'success')
@@ -137,6 +170,9 @@ end)
 -- ═══════════════════════════════════════
 
 RegisterNetEvent('umeverse:client:selectCharacter', function(characters)
+    -- Dismiss loading screen so the player can see the NUI
+    DismissLoadingScreen()
+
     SetNuiFocus(true, true)
     SendNUIMessage({
         action     = 'showCharacterSelect',
@@ -147,6 +183,9 @@ RegisterNetEvent('umeverse:client:selectCharacter', function(characters)
 end)
 
 RegisterNetEvent('umeverse:client:createCharacter', function()
+    -- Dismiss loading screen so the player can see the NUI
+    DismissLoadingScreen()
+
     SetNuiFocus(true, true)
     SendNUIMessage({
         action     = 'showCharacterCreate',

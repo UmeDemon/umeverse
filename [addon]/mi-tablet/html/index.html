@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MI Tablet</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Leaflet (map) -->
+    <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Main Tablet Container -->
+    <div id="tablet-container">
+        <!-- Tablet Frame -->
+        <div id="tablet-frame">
+            <!-- Status Bar -->
+            <div id="status-bar">
+                <div class="status-left">
+                    <span id="current-time">00:00</span>
+                </div>
+                <div class="status-center">
+                    <span id="current-date"></span>
+                </div>
+                <div class="status-right">
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-signal"></i>
+                    <span id="battery-level">
+                        <i class="fas fa-battery-full"></i>
+                        <span>100%</span>
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Main Screen Area -->
+            <div id="screen-container">
+                <!-- Lock Screen -->
+                <div id="lock-screen" class="screen hidden">
+                    <div class="lock-content">
+                        <div class="lock-time" id="lock-time">00:00</div>
+                        <div class="lock-date" id="lock-date"></div>
+                        <div class="lock-hint">
+                            <i class="fas fa-chevron-up"></i>
+                            <span>Swipe up to unlock</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Home Screen Container (for flip effect) -->
+                <div id="home-screen-container" class="home-flip-container">
+                    <!-- Normal Home Screen (Front) -->
+                    <div id="home-screen" class="screen active home-front">
+                        <!-- Wallpaper -->
+                        <div id="wallpaper" class="wallpaper-default"></div>
+                        
+                        <!-- Edge Chaser Light -->
+                        <div class="edge-chaser-container">
+                            <div class="edge-chaser chaser-cyan"></div>
+                            <div class="edge-chaser chaser-purple"></div>
+                            <div class="edge-chaser chaser-green"></div>
+                            <div class="edge-chaser chaser-pink"></div>
+                            <div class="edge-chaser chaser-gold"></div>
+                            <div class="edge-chaser chaser-orange"></div>
+                        </div>
+                        
+                        <!-- App Grid -->
+                        <div id="app-grid">
+                            <!-- Apps will be dynamically inserted here -->
+                        </div>
+                        
+                        <!-- Page Indicators -->
+                        <div id="page-indicators">
+                            <span class="indicator active"></span>
+                        </div>
+                        
+                        <!-- Dock -->
+                        <div id="dock">
+                            <!-- Dock apps will be inserted here -->
+                        </div>
+                        
+                        <!-- Hidden Darkweb Button -->
+                        <div id="darkweb-trigger" class="darkweb-trigger">
+                            <i class="fas fa-skull"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Darkweb Home Screen (Back) -->
+                    <div id="darkweb-screen" class="screen home-back">
+                        <!-- Darkweb Background -->
+                        <div class="darkweb-wallpaper"></div>
+                        
+                        <!-- Darkweb Edge Effect -->
+                        <div class="darkweb-edge-container">
+                            <div class="darkweb-edge"></div>
+                        </div>
+                        
+                        <!-- Darkweb Scanlines -->
+                        <div class="darkweb-scanlines"></div>
+                        
+                        <!-- Darkweb Header -->
+                        <div class="darkweb-header">
+                            <div class="darkweb-logo">
+                                <i class="fas fa-skull-crossbones"></i>
+                                <span>SHADOW NET</span>
+                            </div>
+                            <div class="darkweb-status">
+                                <i class="fas fa-circle"></i>
+                                <span>ENCRYPTED</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Darkweb App Grid -->
+                        <div id="darkweb-app-grid" class="darkweb-apps">
+                            <!-- Criminal Rep App -->
+                            <div class="darkweb-app-icon" data-app="criminal-rep">
+                                <div class="darkweb-icon-bg">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <span>Street Rep</span>
+                            </div>
+                            <!-- Territories App -->
+                            <div class="darkweb-app-icon" data-app="territories">
+                                <div class="darkweb-icon-bg">
+                                    <i class="fas fa-map-location-dot"></i>
+                                </div>
+                                <span>Territories</span>
+                            </div>
+                            <!-- More darkweb apps can be added here -->
+                        </div>
+                        
+                        <!-- Darkweb Home Button (return to normal) -->
+                        <div id="darkweb-home-btn" class="darkweb-home-btn">
+                            <i class="fas fa-home"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- App Screen (for displaying app content) -->
+                <div id="app-screen" class="screen hidden">
+                    <div id="app-header">
+                        <button id="app-back-btn" class="app-nav-btn">
+                            <i class="fas fa-chevron-left"></i>
+                            <span>Back</span>
+                        </button>
+                        <h2 id="app-title">App</h2>
+                        <button id="app-close-btn" class="app-nav-btn">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div id="app-content">
+                        <!-- App content will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Settings Screen -->
+                <div id="settings-screen" class="screen hidden">
+                    <div id="settings-header">
+                        <button id="settings-back-btn" class="app-nav-btn">
+                            <i class="fas fa-chevron-left"></i>
+                            <span>Back</span>
+                        </button>
+                        <h2>Settings</h2>
+                        <div class="spacer"></div>
+                    </div>
+                    <div id="settings-content">
+                        <div class="settings-section">
+                            <h3>Display</h3>
+                            <div class="settings-item">
+                                <div class="settings-label">
+                                    <i class="fas fa-image"></i>
+                                    <span>Wallpaper</span>
+                                </div>
+                                <select id="setting-wallpaper" class="settings-select">
+                                    <!-- Options populated by JS -->
+                                </select>
+                            </div>
+                            <div class="settings-item custom-wallpaper-item" id="custom-wallpaper-container" style="display: none;">
+                                <div class="settings-label">
+                                    <i class="fas fa-link"></i>
+                                    <span>Image URL</span>
+                                </div>
+                                <div class="custom-url-input-group">
+                                    <input type="text" id="setting-custom-wallpaper" class="settings-input" placeholder="https://example.com/image.jpg">
+                                    <button id="apply-custom-wallpaper" class="apply-url-btn"><i class="fas fa-check"></i></button>
+                                </div>
+                            </div>
+                            <div class="settings-item">
+                                <div class="settings-label">
+                                    <i class="fas fa-sun"></i>
+                                    <span>Brightness</span>
+                                </div>
+                                <input type="range" id="setting-brightness" min="20" max="100" value="100" class="settings-slider">
+                            </div>
+                            <div class="settings-item">
+                                <div class="settings-label">
+                                    <i class="fas fa-moon"></i>
+                                    <span>Dark Mode</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="setting-darkmode">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h3>Sound</h3>
+                            <div class="settings-item">
+                                <div class="settings-label">
+                                    <i class="fas fa-volume-up"></i>
+                                    <span>Volume</span>
+                                </div>
+                                <input type="range" id="setting-volume" min="0" max="100" value="50" class="settings-slider">
+                            </div>
+                            <div class="settings-item">
+                                <div class="settings-label">
+                                    <i class="fas fa-bell"></i>
+                                    <span>Notifications</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="setting-notifications" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h3>Accessibility</h3>
+                            <div class="settings-item">
+                                <div class="settings-label">
+                                    <i class="fas fa-text-height"></i>
+                                    <span>Font Size</span>
+                                </div>
+                                <select id="setting-fontsize" class="settings-select">
+                                    <option value="small">Small</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="large">Large</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h3>About</h3>
+                            <div class="settings-item about-item">
+                                <div class="settings-label">
+                                    <i class="fas fa-tablet-alt"></i>
+                                    <span>Device</span>
+                                </div>
+                                <span class="settings-value">MI Tablet</span>
+                            </div>
+                            <div class="settings-item about-item">
+                                <div class="settings-label">
+                                    <i class="fas fa-code-branch"></i>
+                                    <span>Version</span>
+                                </div>
+                                <span class="settings-value">1.0.0</span>
+                            </div>
+                            <div class="settings-item about-item">
+                                <div class="settings-label">
+                                    <i class="fas fa-user"></i>
+                                    <span>Owner</span>
+                                </div>
+                                <span class="settings-value" id="owner-name">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Home Indicator (iPad style) -->
+            <div id="home-indicator">
+                <div class="indicator-bar"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- App Templates -->
+    <template id="app-icon-template">
+        <div class="app-icon" data-app-id="">
+            <div class="app-icon-wrapper">
+                <i class="fas fa-question"></i>
+            </div>
+            <span class="app-name">App</span>
+        </div>
+    </template>
+    
+    <!-- Calculator App Template -->
+    <template id="calculator-app-template">
+        <div class="calculator-app">
+            <div class="calc-container">
+                <!-- Main Calculator -->
+                <div class="calc-main">
+                    <div class="calc-header">
+                        <span class="calc-title">CALCULATOR</span>
+                        <div class="calc-mode-toggle">
+                            <button class="calc-mode-btn active" data-mode="basic">Basic</button>
+                            <button class="calc-mode-btn" data-mode="scientific">Sci</button>
+                        </div>
+                    </div>
+                    
+                    <div class="calc-display">
+                        <div class="calc-expression" id="calc-expression"></div>
+                        <div class="calc-result" id="calc-result">0</div>
+                    </div>
+                    
+                    <!-- Scientific Buttons (hidden by default) -->
+                    <div class="calc-scientific-buttons" id="calc-scientific-buttons" style="display: none;">
+                        <button class="calc-btn scientific" data-action="sin">sin</button>
+                        <button class="calc-btn scientific" data-action="cos">cos</button>
+                        <button class="calc-btn scientific" data-action="tan">tan</button>
+                        <button class="calc-btn scientific" data-action="log">log</button>
+                        <button class="calc-btn scientific" data-action="ln">ln</button>
+                        <button class="calc-btn scientific" data-action="sqrt">√</button>
+                        <button class="calc-btn scientific" data-action="square">x²</button>
+                        <button class="calc-btn scientific" data-action="power">xʸ</button>
+                        <button class="calc-btn scientific" data-action="pi">π</button>
+                        <button class="calc-btn scientific" data-action="e">e</button>
+                    </div>
+                    
+                    <div class="calc-buttons">
+                        <button class="calc-btn function" data-action="clear">AC</button>
+                        <button class="calc-btn function" data-action="plusminus">±</button>
+                        <button class="calc-btn function" data-action="percent">%</button>
+                        <button class="calc-btn operator" data-action="divide">÷</button>
+                        
+                        <button class="calc-btn number" data-value="7">7</button>
+                        <button class="calc-btn number" data-value="8">8</button>
+                        <button class="calc-btn number" data-value="9">9</button>
+                        <button class="calc-btn operator" data-action="multiply">×</button>
+                        
+                        <button class="calc-btn number" data-value="4">4</button>
+                        <button class="calc-btn number" data-value="5">5</button>
+                        <button class="calc-btn number" data-value="6">6</button>
+                        <button class="calc-btn operator" data-action="subtract">−</button>
+                        
+                        <button class="calc-btn number" data-value="1">1</button>
+                        <button class="calc-btn number" data-value="2">2</button>
+                        <button class="calc-btn number" data-value="3">3</button>
+                        <button class="calc-btn operator" data-action="add">+</button>
+                        
+                        <button class="calc-btn number zero" data-value="0">0</button>
+                        <button class="calc-btn number" data-value=".">.</button>
+                        <button class="calc-btn equals" data-action="equals">=</button>
+                    </div>
+                </div>
+                
+                <!-- History Panel -->
+                <div class="calc-history">
+                    <div class="calc-history-header">
+                        <i class="fas fa-history"></i>
+                        <span>History</span>
+                        <button class="calc-history-clear" id="clear-history">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                    <div class="calc-history-list" id="calc-history-list">
+                        <!-- History items will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Notes App Template -->
+    <template id="notes-app-template">
+        <div class="notes-app">
+            <div class="notes-sidebar">
+                <div class="notes-header">
+                    <h3>Notes</h3>
+                    <button class="notes-new-btn" id="new-note-btn">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <div class="notes-list" id="notes-list">
+                    <!-- Notes will be added here -->
+                </div>
+            </div>
+            <div class="notes-editor">
+                <input type="text" class="notes-title" id="note-title" placeholder="Note title...">
+                <textarea class="notes-content" id="note-content" placeholder="Start writing..."></textarea>
+                <div class="notes-footer">
+                    <span class="notes-date" id="note-date"></span>
+                    <button class="notes-delete-btn" id="delete-note-btn">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Weather App Template -->
+    <template id="weather-app-template">
+        <div class="weather-app">
+            <!-- Main Weather Display -->
+            <div class="weather-main">
+                <div class="weather-icon">
+                    <i class="fas fa-sun"></i>
+                </div>
+                <div class="weather-temp">25°C</div>
+                <div class="weather-feels">Feels like <span id="feels-like">23°C</span></div>
+                <div class="weather-desc">Clear</div>
+                <div class="weather-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Los Santos</span>
+                </div>
+            </div>
+            
+            <!-- Sun & Moon Info -->
+            <div class="weather-sun-moon">
+                <div class="sun-moon-item">
+                    <i class="fas fa-sunrise"></i>
+                    <span class="sun-moon-time" id="sunrise-time">06:32</span>
+                    <span class="sun-moon-label">Sunrise</span>
+                </div>
+                <div class="sun-moon-item moon-phase">
+                    <i class="fas fa-moon" id="moon-icon"></i>
+                    <span class="sun-moon-time" id="moon-phase">Waxing</span>
+                    <span class="sun-moon-label">Moon Phase</span>
+                </div>
+                <div class="sun-moon-item">
+                    <i class="fas fa-sunset"></i>
+                    <span class="sun-moon-time" id="sunset-time">20:15</span>
+                    <span class="sun-moon-label">Sunset</span>
+                </div>
+            </div>
+            
+            <!-- Weather Details Grid -->
+            <div class="weather-details">
+                <div class="weather-detail">
+                    <i class="fas fa-wind"></i>
+                    <span class="detail-value" id="wind-speed">12 km/h</span>
+                    <span class="detail-label">Wind</span>
+                </div>
+                <div class="weather-detail">
+                    <i class="fas fa-tint"></i>
+                    <span class="detail-value" id="humidity">65%</span>
+                    <span class="detail-label">Humidity</span>
+                </div>
+                <div class="weather-detail">
+                    <i class="fas fa-eye"></i>
+                    <span class="detail-value" id="visibility">10 km</span>
+                    <span class="detail-label">Visibility</span>
+                </div>
+                <div class="weather-detail">
+                    <i class="fas fa-sun"></i>
+                    <span class="detail-value" id="uv-index">6</span>
+                    <span class="detail-label">UV Index</span>
+                </div>
+                <div class="weather-detail">
+                    <i class="fas fa-cloud-rain"></i>
+                    <span class="detail-value" id="precipitation">15%</span>
+                    <span class="detail-label">Rain Chance</span>
+                </div>
+                <div class="weather-detail">
+                    <i class="fas fa-compress-arrows-alt"></i>
+                    <span class="detail-value" id="pressure">1013 hPa</span>
+                    <span class="detail-label">Pressure</span>
+                </div>
+            </div>
+            
+            <!-- 3-Day Forecast -->
+            <div class="weather-forecast">
+                <h3 class="forecast-title">3-Day Forecast</h3>
+                <div class="forecast-days">
+                    <div class="forecast-day">
+                        <span class="forecast-day-name">Tomorrow</span>
+                        <i class="fas fa-cloud-sun forecast-icon"></i>
+                        <span class="forecast-temp-high">27°</span>
+                        <span class="forecast-temp-low">18°</span>
+                    </div>
+                    <div class="forecast-day">
+                        <span class="forecast-day-name">Wed</span>
+                        <i class="fas fa-cloud forecast-icon"></i>
+                        <span class="forecast-temp-high">24°</span>
+                        <span class="forecast-temp-low">16°</span>
+                    </div>
+                    <div class="forecast-day">
+                        <span class="forecast-day-name">Thu</span>
+                        <i class="fas fa-cloud-rain forecast-icon"></i>
+                        <span class="forecast-temp-high">22°</span>
+                        <span class="forecast-temp-low">15°</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Maps App Template -->
+    <template id="maps-app-template">
+        <div class="maps-app">
+            <!-- Maps Header -->
+            <div class="maps-header">
+                <div class="maps-search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="maps-search" id="maps-search" placeholder="Search locations...">
+                </div>
+                <button class="maps-locate-btn" id="maps-locate">
+                    <i class="fas fa-crosshairs"></i>
+                </button>
+            </div>
+            
+            <!-- Interactive Map Display -->
+            <div class="maps-display-container" id="maps-display-container">
+                <div class="maps-display" id="maps-display">
+                    <img src="img/gtamap.png" alt="Los Santos Map" class="maps-image" id="maps-image" draggable="false">
+                    <div class="maps-player-marker" id="maps-player-marker">
+                        <div class="maps-marker-pulse"></div>
+                        <i class="fas fa-circle"></i>
+                    </div>
+                    <div class="maps-waypoint-marker" id="maps-waypoint-marker" style="display: none;">
+                        <i class="fas fa-location-dot"></i>
+                    </div>
+                </div>
+                <div class="maps-display-overlay">
+                    <div class="maps-zoom-controls">
+                        <button class="maps-zoom-btn" id="maps-zoom-in"><i class="fas fa-plus"></i></button>
+                        <button class="maps-zoom-btn" id="maps-zoom-out"><i class="fas fa-minus"></i></button>
+                        <button class="maps-zoom-btn" id="maps-center-player"><i class="fas fa-crosshairs"></i></button>
+                    </div>
+                    <div class="maps-coords-overlay" id="maps-coords-overlay">
+                        <span id="maps-current-zone">Los Santos</span>
+                        <span id="maps-current-coords">0, 0, 0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="maps-quick-actions">
+                <button class="maps-action-btn" id="maps-clear-waypoint">
+                    <i class="fas fa-times-circle"></i>
+                    <span>Clear Waypoint</span>
+                </button>
+                <button class="maps-action-btn" id="maps-copy-coords">
+                    <i class="fas fa-copy"></i>
+                    <span>Copy Coords</span>
+                </button>
+                <button class="maps-action-btn" id="maps-toggle-view">
+                    <i class="fas fa-list"></i>
+                    <span>POI List</span>
+                </button>
+            </div>
+            
+            <!-- Collapsible Panel for Saved Locations & POI -->
+            <div class="maps-panel" id="maps-panel">
+                <!-- Saved Locations -->
+                <div class="maps-section">
+                    <h3 class="maps-section-title">
+                        <i class="fas fa-bookmark"></i>
+                        Saved Locations
+                    </h3>
+                    <div class="maps-saved-list" id="maps-saved-list">
+                        <!-- Saved locations will be inserted here -->
+                    </div>
+                    <button class="maps-save-current" id="maps-save-current">
+                        <i class="fas fa-plus"></i>
+                        <span>Save Current Location</span>
+                    </button>
+                </div>
+                
+                <!-- Points of Interest -->
+                <div class="maps-section">
+                    <h3 class="maps-section-title">
+                        <i class="fas fa-star"></i>
+                        Points of Interest
+                    </h3>
+                    <div class="maps-poi-categories" id="maps-poi-categories">
+                        <button class="maps-poi-category active" data-category="all">All</button>
+                        <button class="maps-poi-category" data-category="services">Services</button>
+                        <button class="maps-poi-category" data-category="shops">Shops</button>
+                        <button class="maps-poi-category" data-category="entertainment">Fun</button>
+                    </div>
+                    <div class="maps-poi-list" id="maps-poi-list">
+                        <!-- POI items will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Browser App Template -->
+    <template id="browser-app-template">
+        <div class="browser-app">
+            <div class="browser-toolbar">
+                <button class="browser-nav-btn" id="browser-back" disabled>
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <button class="browser-nav-btn" id="browser-forward" disabled>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <button class="browser-nav-btn" id="browser-refresh">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <div class="browser-url-bar">
+                    <i class="fas fa-lock"></i>
+                    <input type="text" id="browser-url" placeholder="Search or enter URL...">
+                </div>
+                <button class="browser-nav-btn" id="browser-go">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+            <div class="browser-content" id="browser-content">
+                <div class="browser-home">
+                    <div class="browser-logo">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h2>MI Browser</h2>
+                    <p>Enter a URL to browse the web</p>
+                    <div class="browser-shortcuts">
+                        <div class="browser-shortcut" data-url="https://www.google.com">
+                            <i class="fab fa-google"></i>
+                            <span>Google</span>
+                        </div>
+                        <div class="browser-shortcut" data-url="https://www.youtube.com">
+                            <i class="fab fa-youtube"></i>
+                            <span>YouTube</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Gallery App Template -->
+    <template id="gallery-app-template">
+        <div class="gallery-app">
+            <div class="gallery-header">
+                <h3>Gallery</h3>
+                <div class="gallery-tabs">
+                    <button class="gallery-tab active" data-tab="photos">Photos</button>
+                    <button class="gallery-tab" data-tab="albums">Albums</button>
+                </div>
+            </div>
+            <div class="gallery-content">
+                <div class="gallery-empty">
+                    <i class="fas fa-images"></i>
+                    <p>No photos yet</p>
+                    <span>Take a photo with the camera app</span>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Criminal Rep App Template (Darkweb) -->
+    <template id="criminal-rep-app-template">
+        <div class="criminal-rep-app">
+            <div class="criminal-rep-header">
+                <div class="criminal-rep-header-content">
+                    <i class="fas fa-user-secret"></i>
+                    <span>Street Rep</span>
+                </div>
+                <div class="criminal-rep-status">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>ANONYMOUS</span>
+                </div>
+            </div>
+            <div class="criminal-rep-content">
+                <div class="criminal-rep-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>CLASSIFIED INFORMATION</span>
+                </div>
+                <div class="criminal-rep-list" id="criminal-rep-list">
+                    <!-- Criminal rep items will be inserted here -->
+                </div>
+                <div class="criminal-rep-empty" id="criminal-rep-empty" style="display: none;">
+                    <i class="fas fa-ghost"></i>
+                    <span>No street rep established</span>
+                    <p class="criminal-rep-empty-hint">Your criminal activities leave no trace... yet</p>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Territories App Template (Darkweb) -->
+
+    
+    <!-- Info Modal Template -->
+    <template id="info-modal-template">
+        <div class="info-modal-overlay" id="info-modal-overlay">
+            <div class="info-modal">
+                <div class="info-modal-header">
+                    <h2 id="info-modal-title">Information</h2>
+                    <button class="info-modal-close" onclick="closeInfoModal()">
+                        <i class="fas fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="info-modal-body" id="info-modal-body">
+                    <!-- Content will be inserted here -->
+                </div>
+                <div class="info-modal-footer">
+                    <button class="info-modal-btn" onclick="closeInfoModal()">
+                        <i class="fas fa-check"></i>
+                        <span>OK</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Camera App Template -->
+    <template id="camera-app-template">
+        <div class="camera-app">
+            <div class="camera-app-content">
+                <div class="camera-app-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <h2 class="camera-app-title">Camera</h2>
+                <p class="camera-app-desc">Capture photos in-game</p>
+                
+                <div class="camera-app-buttons">
+                    <button class="camera-mode-btn" id="camera-capture">
+                        <div class="camera-mode-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <span>Take Photo</span>
+                    </button>
+                    
+                    <button class="camera-mode-btn selfie" id="camera-switch">
+                        <div class="camera-mode-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span>Selfie Mode</span>
+                    </button>
+                </div>
+                
+                <button class="camera-gallery-btn" id="camera-gallery">
+                    <i class="fas fa-images"></i>
+                    <span>View Gallery</span>
+                </button>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Rep App Template -->
+    <template id="rep-app-template">
+        <div class="rep-app">
+            <div class="rep-header">
+                <div class="rep-header-content">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Your Reputation</span>
+                </div>
+            </div>
+            <div class="rep-content">
+                <div class="rep-list" id="rep-list">
+                    <!-- Rep items will be inserted here -->
+                </div>
+                <div class="rep-empty" id="rep-empty" style="display: none;">
+                    <i class="fas fa-award"></i>
+                    <span>No reputation earned yet</span>
+                    <p class="rep-empty-hint">Complete activities to build your reputation</p>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Territories App Template -->
+    <template id="territories-app-template">
+        <div class="territories-app">
+            <!-- Header with Status and Refresh -->
+            <div class="territories-header">
+                <div class="territories-header-content">
+                    <i class="fas fa-map-location-dot"></i>
+                    <span>Gang Territories</span>
+                </div>
+                <div class="territories-header-status" id="territories-status">
+                    <i class="fas fa-circle"></i>
+                    <span>OFFLINE</span>
+                </div>
+            </div>
+
+            <!-- Settings/Color Customization Tab -->
+            <div class="territories-controls">
+                <div class="territories-control-group">
+                    <button class="territories-control-btn active" data-tab="territories">
+                        <i class="fas fa-map"></i>
+                        <span>Map</span>
+                    </button>
+                    <button class="territories-control-btn" data-tab="settings">
+                        <i class="fas fa-cogs"></i>
+                        <span>Settings</span>
+                    </button>
+                    <button class="territories-control-btn" data-tab="members">
+                        <i class="fas fa-users"></i>
+                        <span>Members</span>
+                    </button>
+                    <button class="territories-control-btn" data-tab="colors">
+                        <i class="fas fa-palette"></i>
+                        <span>Colors</span>
+                    </button>
+                    <button class="territories-refresh-btn" id="territories-refresh-btn">
+                        <i class="fas fa-rotate-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main territories view tab -->
+            <div class="territories-tab-content active" data-tab="territories">
+                <!-- Loading State -->
+                <div class="territories-loading" id="territories-loading" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Loading territories...</span>
+                </div>
+
+                <!-- Empty/Offline State -->
+                <div class="territories-empty" id="territories-empty" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Not in a gang or VPN required</span>
+                </div>
+
+                <!-- Gang Info -->
+                <div class="territories-gang-info" id="territories-gang-info"></div>
+
+                <!-- Territories Map Section -->
+                <div class="territories-map-section" id="territories-map-section" style="display: none;">
+                    <div class="territories-map" id="territories-map"></div>
+                </div>
+
+                <!-- Territories List Section -->
+                <div class="territories-list-section" id="territories-list-section" style="display: none;">
+                    <h3 class="territories-section-title">Controlled Territories</h3>
+                    <div class="territories-list" id="territories-list">
+                        <!-- Territories will be inserted here -->
+                    </div>
+                    <div class="territories-no-data">No territories controlled</div>
+                </div>
+
+                <!-- Location Info -->
+                <div class="territories-location" id="territories-location">
+                    <h3 class="territories-section-title">Gang Members</h3>
+                    <div class="territories-members-section" id="territories-members-section">
+                        <div class="territories-members-list" id="territories-members-list">
+                            <!-- Members will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gang Settings tab -->
+            <div class="territories-tab-content" data-tab="settings">
+                <div class="territories-settings">
+                    <h3 class="territories-section-title">Gang Settings</h3>
+                    
+                    <div class="territories-setting-group">
+                        <label for="gang-name-input">Gang Name</label>
+                        <input type="text" id="gang-name-input" class="territories-input" placeholder="Enter gang name" maxlength="50">
+                        <button class="territories-btn-small save" onclick="saveSetting('name')">Save Name</button>
+                    </div>
+
+                    <div class="territories-setting-group">
+                        <label for="gang-color-input">Gang Color</label>
+                        <input type="color" id="gang-color-input" class="territories-color-picker">
+                        <button class="territories-btn-small save" onclick="saveSetting('color')">Save Color</button>
+                    </div>
+
+                    <div class="territories-setting-group">
+                        <label for="gang-fill-color-input">Gang Fill Color</label>
+                        <input type="color" id="gang-fill-color-input" class="territories-color-picker">
+                        <button class="territories-btn-small save" onclick="saveSetting('fillColor')">Save Fill Color</button>
+                    </div>
+
+                    <div class="territories-setting-group">
+                        <h4 class="territories-subsection-title">Gang Ranks</h4>
+                        <div class="territories-ranks-list" id="gang-ranks-list">
+                            <!-- Ranks will be inserted here -->
+                        </div>
+                        <div class="territories-rank-input-group">
+                            <input type="text" id="new-rank-input" class="territories-input" placeholder="New rank name" maxlength="30">
+                            <button class="territories-btn-small" onclick="addGangRank()">Add Rank</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Members tab -->
+            <div class="territories-tab-content" data-tab="members">
+                <div class="territories-members">
+                    <h3 class="territories-section-title">Gang Members</h3>
+                    
+                    <div class="territories-members-list" id="territories-members-list-tab">
+                        <!-- Members will be inserted here -->
+                    </div>
+
+                    <div class="territories-invite-group">
+                        <h4 class="territories-subsection-title">Invite Member</h4>
+                        <div class="territories-invite-input-group">
+                            <input type="text" id="invite-csn-input" class="territories-input" placeholder="Enter CSN (e.g., YZO12345)" maxlength="10">
+                            <button class="territories-btn" onclick="inviteMember()">Invite</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Color customization tab -->
+            <div class="territories-tab-content" data-tab="colors">
+                <div class="territories-color-settings">
+                    <h3 class="territories-section-title">Territory Colors</h3>
+                    
+                    <div class="territories-color-group">
+                        <label for="territories-color-owned" class="territories-color-label">
+                            <i class="fas fa-home" style="color: #00ff00;"></i>
+                            Your Territories
+                        </label>
+                        <input type="color" id="territories-color-owned" class="territories-color-picker" value="#00ff00">
+                    </div>
+
+                    <div class="territories-color-group">
+                        <label for="territories-color-other" class="territories-color-label">
+                            <i class="fas fa-map-pin" style="color: #00ffff;"></i>
+                            Other Gang Territories
+                        </label>
+                        <input type="color" id="territories-color-other" class="territories-color-picker" value="#00ffff">
+                    </div>
+
+                    <div class="territories-color-group">
+                        <label for="territories-color-contested" class="territories-color-label">
+                            <i class="fas fa-exclamation" style="color: #ffaa00;"></i>
+                            Contested
+                        </label>
+                        <input type="color" id="territories-color-contested" class="territories-color-picker" value="#ffaa00">
+                    </div>
+
+                    <div class="territories-color-group">
+                        <label for="territories-color-claiming" class="territories-color-label">
+                            <i class="fas fa-clock" style="color: #ffff00;"></i>
+                            Claiming/In-Progress
+                        </label>
+                        <input type="color" id="territories-color-claiming" class="territories-color-picker" value="#ffff00">
+                    </div>
+
+                    <div class="territories-color-group">
+                        <label for="territories-color-unclaimed" class="territories-color-label">
+                            <i class="fas fa-circle" style="color: #8b0000;"></i>
+                            Unclaimed/Neutral
+                        </label>
+                        <input type="color" id="territories-color-unclaimed" class="territories-color-picker" value="#8b0000">
+                    </div>
+
+                    <div class="territories-color-group">
+                        <label for="territories-color-restricted" class="territories-color-label">
+                            <i class="fas fa-ban" style="color: #808080;"></i>
+                            Restricted Zones
+                        </label>
+                        <input type="color" id="territories-color-restricted" class="territories-color-picker" value="#808080">
+                    </div>
+
+                    <div class="territories-color-actions">
+                        <button class="territories-color-btn reset" id="territories-reset-colors">
+                            <i class="fas fa-undo"></i>
+                            Reset to Defaults
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Banking App Template -->
+    <template id="banking-app-template">
+        <div class="banking-app">
+            <div class="banking-header">
+                <div class="banking-header-content">
+                    <i class="fas fa-building-columns"></i>
+                    <span>TMC Banking</span>
+                </div>
+            </div>
+            <div class="banking-content">
+                <!-- Account Summary Card -->
+                <div class="banking-summary" id="banking-summary">
+                    <div class="banking-loading" id="banking-loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Loading accounts...</span>
+                    </div>
+                </div>
+                
+                <!-- Accounts List -->
+                <div class="banking-section">
+                    <h3 class="banking-section-title">Your Accounts</h3>
+                    <div class="banking-accounts" id="banking-accounts">
+                        <!-- Accounts will be inserted here -->
+                    </div>
+                </div>
+                
+                <!-- Recent Transactions -->
+                <div class="banking-section">
+                    <h3 class="banking-section-title">Recent Transactions</h3>
+                    <div class="banking-transactions" id="banking-transactions">
+                        <div class="banking-empty-transactions">
+                            <i class="fas fa-receipt"></i>
+                            <span>No recent transactions</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Admins App Template (Admin Apps Launcher) -->
+    <template id="admins-app-template">
+        <div class="admins-app">
+            <div class="admins-header">
+                <div class="admins-header-content">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Admin Panel</span>
+                </div>
+            </div>
+            <div class="admins-content">
+                <!-- Admin Apps Grid -->
+                <div class="admins-section">
+                    <h3 class="admins-section-title">Admin Tools</h3>
+                    <div class="admins-apps-grid" id="admins-apps-grid">
+                        <!-- Events App -->
+                        <div class="admins-app-card" data-admin-app="events">
+                            <div class="admins-app-icon events">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <span class="admins-app-name">Events</span>
+                            <span class="admins-app-desc">Start & manage events</span>
+                        </div>
+                        <!-- AV Scripts Admin -->
+                        <div class="admins-app-card" data-admin-app="avscripts">
+                            <div class="admins-app-icon avscripts">
+                                <i class="fas fa-terminal"></i>
+                            </div>
+                            <span class="admins-app-name">AV Scripts</span>
+                            <span class="admins-app-desc">AV admin commands for laptop, gangs ect</span>
+                        </div>
+                        <!-- Real Estate Admin -->
+                        <div class="admins-app-card" data-admin-app="realestate">
+                            <div class="admins-app-icon realestate">
+                                <i class="fas fa-house-chimney"></i>
+                            </div>
+                            <span class="admins-app-name">Real Estate</span>
+                            <span class="admins-app-desc">Shell creator, prop placer tools</span>
+                        </div>
+                        <!-- More admin apps can be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Events App Template (Admin Sub-App) -->
+    <template id="events-app-template">
+        <div class="events-app">
+            <div class="events-header">
+                <button class="events-back-btn" id="events-back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="events-header-content">
+                    <i class="fas fa-calendar-star"></i>
+                    <span>Events Manager</span>
+                </div>
+            </div>
+            <div class="events-content">
+                <!-- Active Event Banner -->
+                <div class="events-active-banner" id="events-active-banner" style="display: none;">
+                    <div class="events-active-info">
+                        <i class="fas fa-broadcast-tower"></i>
+                        <span id="events-active-name">No active event</span>
+                    </div>
+                    <button class="events-stop-btn" id="events-stop-active">
+                        <i class="fas fa-stop"></i>
+                        Stop
+                    </button>
+                </div>
+                
+                <!-- Events List -->
+                <div class="events-section">
+                    <h3 class="events-section-title">Available Events</h3>
+                    <div class="events-list" id="events-list">
+                        <!-- Event Cards will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- AV Scripts Admin Panel Template -->
+    <template id="avscripts-app-template">
+        <div class="avscripts-app">
+            <div class="avscripts-header">
+                <button class="avscripts-back-btn" id="avscripts-back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="avscripts-header-content">
+                    <i class="fas fa-terminal"></i>
+                    <span>AV Admin Commands</span>
+                </div>
+            </div>
+            <div class="avscripts-content">
+                <!-- AV Commands Grid -->
+                <div class="avscripts-section">
+                    <h3 class="avscripts-section-title">Admin Panels</h3>
+                    <div class="avscripts-commands-grid" id="avscripts-commands-grid">
+                        <!-- Command buttons will be populated dynamically -->
+                    </div>
+                </div>
+                
+                <!-- Utility Commands Section -->
+                <div class="avscripts-section">
+                    <h3 class="avscripts-section-title">Utility Commands</h3>
+                    <div class="avscripts-commands-grid" id="avscripts-utility-grid">
+                        <!-- Utility command buttons will be populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Real Estate Admin Panel Template -->
+    <template id="realestate-app-template">
+        <div class="realestate-app">
+            <div class="realestate-header">
+                <button class="realestate-back-btn" id="realestate-back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="realestate-header-content">
+                    <i class="fas fa-house-chimney"></i>
+                    <span>Real Estate Tools</span>
+                </div>
+            </div>
+            <div class="realestate-content">
+                <!-- Real Estate Commands Grid -->
+                <div class="realestate-section">
+                    <h3 class="realestate-section-title">Shell & Prop Tools</h3>
+                    <div class="realestate-commands-grid" id="realestate-commands-grid">
+                        <!-- Command buttons will be populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Player Events App Template (Launcher - like Admin Panel) -->
+    <template id="player-events-app-template">
+        <div class="events-launcher-app">
+            <div class="events-launcher-header">
+                <div class="events-launcher-header-content">
+                    <i class="fas fa-crown"></i>
+                    <span>Events Hub</span>
+                </div>
+            </div>
+            <div class="events-launcher-content">
+                <!-- Events Grid -->
+                <div class="events-launcher-section">
+                    <h3 class="events-launcher-section-title">Available Features</h3>
+                    <div class="events-launcher-grid" id="events-launcher-grid">
+                        <!-- Events Card -->
+                        <div class="events-launcher-card" data-events-app="events">
+                            <div class="events-launcher-icon events">
+                                <i class="fas fa-gamepad"></i>
+                            </div>
+                            <span class="events-launcher-name">Events</span>
+                            <span class="events-launcher-desc">View & join active events</span>
+                        </div>
+                        <!-- More feature cards can be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Player Events List Template (Sub-App - View/Join Events) -->
+    <template id="player-events-list-template">
+        <div class="player-events-app">
+            <div class="player-events-header">
+                <button class="player-events-back-btn" id="player-events-back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="player-events-header-content">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Active Events</span>
+                </div>
+            </div>
+            <div class="player-events-content">
+                <!-- Last Man Standing Event Card -->
+                <div class="player-event-card" id="lms-event-card">
+                    <div class="player-event-icon">
+                        <i class="fas fa-skull-crossbones"></i>
+                    </div>
+                    <div class="player-event-info">
+                        <h3 class="player-event-name">Last Man Standing</h3>
+                        <p class="player-event-desc">Battle royale style elimination event. Be the last survivor to win!</p>
+                        
+                        <!-- Status Section -->
+                        <div class="player-event-status" id="lms-event-status">
+                            <div class="event-status-badge inactive" id="lms-status-badge">
+                                <i class="fas fa-circle"></i>
+                                <span id="lms-status-text">Inactive</span>
+                            </div>
+                            <div class="event-timer" id="lms-timer-container" style="display: none;">
+                                <i class="fas fa-clock"></i>
+                                <span id="lms-timer">--:--</span>
+                            </div>
+                            <div class="event-players" id="lms-players-container" style="display: none;">
+                                <i class="fas fa-users"></i>
+                                <span id="lms-players">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="player-event-buttons">
+                        <button class="player-event-join-btn" id="lms-join-btn" disabled>
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span>Join Event</span>
+                        </button>
+                        <button class="player-event-leave-btn" id="lms-leave-btn" style="display: none;">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Leave</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Prop Hunt Event Card -->
+                <div class="player-event-card" id="prophunt-event-card">
+                    <div class="player-event-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">
+                        <i class="fas fa-ghost"></i>
+                    </div>
+                    <div class="player-event-info">
+                        <h3 class="player-event-name">Prop Hunt</h3>
+                        <p class="player-event-desc">Hide as a prop or hunt them down! Garry's Mod style gameplay.</p>
+                        
+                        <!-- Status Section -->
+                        <div class="player-event-status" id="prophunt-event-status">
+                            <div class="event-status-badge inactive" id="prophunt-status-badge">
+                                <i class="fas fa-circle"></i>
+                                <span id="prophunt-status-text">Inactive</span>
+                            </div>
+                            <div class="event-timer" id="prophunt-timer-container" style="display: none;">
+                                <i class="fas fa-clock"></i>
+                                <span id="prophunt-timer">--:--</span>
+                            </div>
+                            <div class="event-players" id="prophunt-players-container" style="display: none;">
+                                <i class="fas fa-users"></i>
+                                <span id="prophunt-players">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="player-event-buttons">
+                        <button class="player-event-join-btn" id="prophunt-join-btn" disabled>
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span>Join Event</span>
+                        </button>
+                        <button class="player-event-leave-btn" id="prophunt-leave-btn" style="display: none;">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Leave</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Empty state for future events -->
+                <div class="player-events-future">
+                    <i class="fas fa-calendar-plus"></i>
+                    <span>More events coming soon!</span>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Casino Management App Template -->
+    <template id="casino-app-template">
+        <div class="casino-app">
+            <div class="casino-header">
+                <div class="casino-header-content">
+                    <i class="fas fa-dice"></i>
+                    <span>Casino Management</span>
+                </div>
+            </div>
+            <div class="casino-content">
+                <!-- Casino Stats Overview -->
+                <div class="casino-stats-section">
+                    <h3 class="casino-section-title">Casino Overview</h3>
+                    <div class="casino-stats-grid">
+                        <div class="casino-stat-card">
+                            <div class="casino-stat-icon">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="casino-stat-info">
+                                <span class="casino-stat-label">Society Balance</span>
+                                <span class="casino-stat-value" id="casino-balance">£0</span>
+                            </div>
+                        </div>
+                        <div class="casino-stat-card">
+                            <div class="casino-stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="casino-stat-info">
+                                <span class="casino-stat-label">Employees</span>
+                                <span class="casino-stat-value" id="casino-employees">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Podium Vehicle Management -->
+                <div class="casino-section">
+                    <h3 class="casino-section-title">
+                        <i class="fas fa-car"></i>
+                        Podium Vehicle
+                    </h3>
+                    <div class="casino-podium-section">
+                        <div class="casino-current-vehicle">
+                            <span class="casino-label">Current Vehicle:</span>
+                            <span class="casino-value" id="casino-current-vehicle">Not Set</span>
+                        </div>
+                        <div class="casino-input-group">
+                            <input type="text" 
+                                   id="casino-vehicle-input" 
+                                   class="casino-input" 
+                                   placeholder="Enter vehicle spawn name (e.g., adder, t20)"
+                                   maxlength="50">
+                            <button class="casino-btn primary" id="casino-set-vehicle-btn">
+                                <i class="fas fa-check"></i>
+                                Set Vehicle
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Employee Management -->
+                <div class="casino-section">
+                    <h3 class="casino-section-title">
+                        <i class="fas fa-id-badge"></i>
+                        Employee Management
+                    </h3>
+                    <div class="casino-employees-section">
+                        <!-- Add Employee -->
+                        <div class="casino-add-employee">
+                            <input type="number" 
+                                   id="casino-employee-id-input" 
+                                   class="casino-input" 
+                                   placeholder="Enter Citizen ID"
+                                   min="1">
+                            <select id="casino-employee-grade-select" class="casino-select">
+                                <option value="3">Service Staff</option>
+                                <option value="2">Dealer</option>
+                                <option value="1">Supervisor</option>
+                                <option value="0">Manager</option>
+                            </select>
+                            <button class="casino-btn success" id="casino-hire-btn">
+                                <i class="fas fa-user-plus"></i>
+                                Hire
+                            </button>
+                        </div>
+
+                        <!-- Employee List -->
+                        <div class="casino-employees-list" id="casino-employees-list">
+                            <!-- Employee cards will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Business Management -->
+                <div class="casino-section">
+                    <h3 class="casino-section-title">
+                        <i class="fas fa-briefcase"></i>
+                        Business Management
+                    </h3>
+                    <div class="casino-business-section">
+                        <!-- Withdraw Section -->
+                        <div class="casino-transaction-group">
+                            <span class="casino-transaction-label">Withdraw Funds</span>
+                            <div class="casino-input-group">
+                                <input type="number" 
+                                       id="casino-withdraw-input" 
+                                       class="casino-input" 
+                                       placeholder="Amount"
+                                       min="1">
+                                <button class="casino-btn danger" id="casino-withdraw-btn">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    Withdraw
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Deposit Section -->
+                        <div class="casino-transaction-group">
+                            <span class="casino-transaction-label">Deposit Funds</span>
+                            <div class="casino-input-group">
+                                <input type="number" 
+                                       id="casino-deposit-input" 
+                                       class="casino-input" 
+                                       placeholder="Amount"
+                                       min="1">
+                                <button class="casino-btn success" id="casino-deposit-btn">
+                                    <i class="fas fa-hand-holding-usd"></i>
+                                    Deposit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Camera Mode Overlay (fullscreen when in camera mode) -->
+    <div id="camera-mode-overlay" class="hidden">
+        <!-- Camera Flash Effect -->
+        <div id="camera-flash"></div>
+        
+        <!-- Camera HUD -->
+        <div class="camera-hud">
+            <!-- Top Bar -->
+            <div class="camera-hud-top">
+                <div class="camera-mode-indicator photo">PHOTO</div>
+                <div class="camera-zoom-level">1.0x</div>
+            </div>
+            
+            <!-- Center Focus Reticle -->
+            <div class="camera-focus-reticle">
+                <div class="focus-corner top-left"></div>
+                <div class="focus-corner top-right"></div>
+                <div class="focus-corner bottom-left"></div>
+                <div class="focus-corner bottom-right"></div>
+            </div>
+            
+            <!-- Bottom Controls & Hints -->
+            <div class="camera-hud-bottom">
+                <div class="camera-hints">
+                    <div class="camera-hint">
+                        <span class="hint-key" id="camera-hint-photo">ENTER</span>
+                        <span class="hint-label">Take Photo</span>
+                    </div>
+                    <div class="camera-hint">
+                        <span class="hint-key" id="camera-hint-flip">F</span>
+                        <span class="hint-label">Flip Camera</span>
+                    </div>
+                    <div class="camera-hint">
+                        <span class="hint-key">SCROLL</span>
+                        <span class="hint-label">Zoom</span>
+                    </div>
+                    <div class="camera-hint">
+                        <span class="hint-key" id="camera-hint-exit">BACKSPACE</span>
+                        <span class="hint-label">Exit</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Photo Viewer (for fullscreen viewing) -->
+    <div id="photo-viewer-container"></div>
+
+    <!-- Mechanic App Template -->
+    <template id="mechanic-app-template">
+        <div class="mechanic-app">
+            <div class="mechanic-header">
+                <div class="mechanic-header-content">
+                    <i class="fas fa-wrench"></i>
+                    <span>Mechanic</span>
+                </div>
+            </div>
+            <div class="mechanic-content">
+                <div class="mechanic-section">
+                    <h3 class="mechanic-section-title">Mechanic Tools</h3>
+                    <div class="mechanic-placeholder">
+                        <i class="fas fa-tools" style="font-size: 48px; opacity: 0.5; margin-bottom: 16px;"></i>
+                        <p style="color: var(--text-secondary);">Mechanic features coming soon.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Bills App Template -->
+    <template id="bills-app-template">
+        <div class="bills-app">
+            <div class="bills-header">
+                <div class="bills-header-content">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Bills</span>
+                </div>
+            </div>
+            <div class="bills-content">
+                <div class="bills-section">
+                    <h3 class="bills-section-title">Billing</h3>
+                    <p class="bills-description">Send a bill to a nearby player.</p>
+                    <button class="bills-btn primary" id="bills-send-billing-btn">
+                        <i class="fas fa-paper-plane"></i>
+                        Open Billing
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Hidden Canvas for GameView capture -->
+    <canvas id="gameview-canvas" width="1920" height="1080" style="display: none;"></canvas>
+    
+    <!-- GameView Module (must load before main script) -->
+    <script src="js/gameview.js"></script>
+
+    <!-- Leaflet (map) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Main Script -->
+    <script src="script.js"></script>
+</body>
+</html>

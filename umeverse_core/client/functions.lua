@@ -291,3 +291,21 @@ end
 function UME.UseItem(itemName)
     TriggerServerEvent('umeverse:server:useItem:' .. itemName)
 end
+
+-- ═══════════════════════════════════════
+-- Compatibility Layer (QBCore / TMC style)
+-- Maps TMC.Functions.* calls to UME.* equivalents
+-- ═══════════════════════════════════════
+UME.Functions.TriggerServerCallback = UME.TriggerServerCallback
+UME.Functions.TriggerCallback = UME.TriggerServerCallback
+UME.Functions.Notify = function(data, ...)
+    if type(data) == 'table' then
+        TriggerEvent('umeverse:client:notify', data.message or '', data.notifType or data.type or 'info', data.duration or 5000)
+    else
+        TriggerEvent('umeverse:client:notify', tostring(data), ...)
+    end
+end
+UME.Functions.UseItem = UME.UseItem
+UME.Functions.GetPlayerData = function()
+    return exports['umeverse_core']:GetPlayerData()
+end

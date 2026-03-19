@@ -8,25 +8,20 @@ local isSpectating = false
 local spectateTarget = nil
 
 -- ═══════════════════════════════════════
--- Open Panel
+-- Open Panel (rebindable via FiveM Settings > Key Bindings)
 -- ═══════════════════════════════════════
 
-CreateThread(function()
-    while true do
-        local sleep = 500
-        if UME.IsLoggedIn() then
-            sleep = 5 -- Check key at a reasonable rate, not every frame
-            if IsControlJustPressed(0, AdminConfig.OpenControl) then
-                if isPanelOpen then
-                    ClosePanel()
-                else
-                    TriggerServerEvent('umeverse_admin:server:openPanel')
-                end
-            end
+RegisterCommand('+umeverse_admin', function()
+    if UME.IsLoggedIn() then
+        if isPanelOpen then
+            ClosePanel()
+        else
+            TriggerServerEvent('umeverse_admin:server:openPanel')
         end
-        Wait(sleep)
     end
-end)
+end, false)
+RegisterCommand('-umeverse_admin', function() end, false)
+RegisterKeyMapping('+umeverse_admin', 'Open Admin Panel', 'keyboard', 'F7')
 
 RegisterNetEvent('umeverse_admin:client:openPanel', function(data)
     isPanelOpen = true
@@ -69,7 +64,13 @@ RegisterNetEvent('umeverse_admin:client:spawnVehicle', function(model)
         return
     end
 
+    -- Delete current vehicle if in one
     local ped = PlayerPedId()
+    local currentVeh = GetVehiclePedIsIn(ped, false)
+    if currentVeh ~= 0 then
+        DeleteEntity(currentVeh)
+    end
+
     local coords = GetEntityCoords(ped)
     local heading = GetEntityHeading(ped)
 
@@ -78,6 +79,67 @@ RegisterNetEvent('umeverse_admin:client:spawnVehicle', function(model)
     TaskWarpPedIntoVehicle(ped, vehicle, -1)
     SetModelAsNoLongerNeeded(modelHash)
     SetEntityAsMissionEntity(vehicle, true, true)
+    SetVehicleNumberPlateText(vehicle, 'ADMIN')
+    TriggerEvent('umeverse:client:notify', 'Spawned: ' .. model, 'success')
+end)
+
+-- ═══════════════════════════════════════
+-- Despawn Vehicle
+-- ═══════════════════════════════════════
+
+RegisterNetEvent('umeverse_admin:client:despawnVehicle', function()
+    local ped = PlayerPedId()
+    local vehicle = GetVehiclePedIsIn(ped, false)
+    if vehicle == 0 then
+        vehicle = GetVehiclePedIsIn(ped, true)
+    end
+    if vehicle == 0 then
+        -- Try closest vehicle
+        local coords = GetEntityCoords(ped)
+        vehicle = GetClosestVehicle(coords.x, coords.y, coords.z, 10.0, 0, 71)
+    end
+    if vehicle ~= 0 then
+        SetEntityAsMissionEntity(vehicle, true, true)
+        DeleteEntity(vehicle)
+        TriggerEvent('umeverse:client:notify', 'Vehicle despawned.', 'success')
+    else
+        TriggerEvent('umeverse:client:notify', 'No vehicle found nearby.', 'error')
+    end
+end)
+
+-- ═══════════════════════════════════════
+-- Invisible
+-- ═══════════════════════════════════════
+
+local isInvisible = false
+
+RegisterNetEvent('umeverse_admin:client:toggleInvisible', function()
+    isInvisible = not isInvisible
+    local ped = PlayerPedId()
+    SetEntityVisible(ped, not isInvisible, false)
+    TriggerEvent('umeverse:client:notify', isInvisible and 'You are now invisible.' or 'You are now visible.', 'info')
+end)
+
+-- ═══════════════════════════════════════
+-- Set Weather (admin override)
+-- ═══════════════════════════════════════
+
+RegisterNetEvent('umeverse_admin:client:setWeather', function(weather)
+    local weatherHash = GetHashKey(weather)
+    SetWeatherTypeOverTime(weather, 15.0)
+    Wait(15000)
+    ClearWeatherTypePersist()
+    SetWeatherTypePersist(weather)
+    SetWeatherTypeNow(weather)
+    SetWeatherTypeNowPersist(weather)
+end)
+
+-- ═══════════════════════════════════════
+-- Set Time (admin override)
+-- ═══════════════════════════════════════
+
+RegisterNetEvent('umeverse_admin:client:setTime', function(hour, minute)
+    NetworkOverrideClockTime(hour, minute or 0, 0)
 end)
 
 -- ═══════════════════════════════════════

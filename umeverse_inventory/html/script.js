@@ -52,6 +52,14 @@ function renderGrid(gridId, inventory, maxSlots, source) {
         slot.dataset.index = i;
         slot.dataset.source = source;
 
+        // Hotbar badge for first 5 player slots
+        if (source === 'player' && i < 5) {
+            const badge = document.createElement('div');
+            badge.className = 'hotbar-badge';
+            badge.textContent = (i + 1);
+            slot.appendChild(badge);
+        }
+
         if (items[i]) {
             const item = items[i];
             const def = (inventoryData.itemDefs && inventoryData.itemDefs[item.name]) || {};

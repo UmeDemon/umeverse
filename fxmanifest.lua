@@ -17,7 +17,7 @@ game 'gta5'
 lua54 'yes'
 
 author 'UmeDemon'
-description 'UmeVerse - Legacy Standalone Resource (use umeverse_core for modular framework)'
+description 'UmeVerse framework'
 version '1.0.0'
 
 shared_scripts {

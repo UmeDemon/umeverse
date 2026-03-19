@@ -69,6 +69,22 @@ tasks:
     src: ./tmp/umeverse/umeverse_appearance
     dest: ./resources/umeverse_appearance
 
+  - action: move_path
+    src: ./tmp/umeverse/umeverse_jobs
+    dest: ./resources/umeverse_jobs
+
+  - action: move_path
+    src: ./tmp/umeverse/umeverse_drugs
+    dest: ./resources/umeverse_drugs
+
+  - action: move_path
+    src: ./tmp/umeverse/umeverse_crime
+    dest: ./resources/umeverse_crime
+
+  - action: move_path
+    src: ./tmp/umeverse/umeverse_gangs
+    dest: ./resources/umeverse_gangs
+
   # ─── Compatibility Bridges ───
   - action: move_path
     src: ./tmp/umeverse/umeverse_bridge_qb
@@ -90,6 +106,34 @@ tasks:
   - action: copy_path
     src: ./tmp/umeverse/[addon]/mi-tablet/sql/tablet_settings.sql
     dest: ./addon_mi_tablet.sql
+
+  - action: copy_path
+    src: ./tmp/umeverse/umeverse_jobs/sql/progression.sql
+    dest: ./umeverse_jobs_progression.sql
+
+  - action: copy_path
+    src: ./tmp/umeverse/umeverse_jobs/sql/enhancements.sql
+    dest: ./umeverse_jobs_enhancements.sql
+
+  - action: copy_path
+    src: ./tmp/umeverse/umeverse_drugs/sql/drugs.sql
+    dest: ./umeverse_drugs.sql
+
+  - action: copy_path
+    src: ./tmp/umeverse/umeverse_crime/sql/crime.sql
+    dest: ./umeverse_crime.sql
+
+  - action: copy_path
+    src: ./tmp/umeverse/umeverse_gangs/sql/gangs.sql
+    dest: ./umeverse_gangs.sql
+
+  - action: copy_path
+    src: ./tmp/umeverse/umeverse_crime/sql/crime_additional.sql
+    dest: ./umeverse_crime_additional.sql
+
+  - action: copy_path
+    src: ./tmp/umeverse/umeverse_gangs/sql/gangs_additional.sql
+    dest: ./umeverse_gangs_additional.sql
 
   - action: copy_path
     src: ./tmp/umeverse/[addon]/mi-tablet/sql/gallery.sql
@@ -165,6 +209,10 @@ tasks:
       ensure umeverse_inventory
       ensure umeverse_banking
       ensure umeverse_vehicles
+      ensure umeverse_jobs
+      ensure umeverse_drugs
+      ensure umeverse_crime
+      ensure umeverse_gangs
       ensure umeverse_admin
       ensure umeverse_weathersync
       ensure umeverse_appearance
@@ -199,6 +247,27 @@ tasks:
 
   - action: query_database
     file: ./umeverse.sql
+
+  - action: query_database
+    file: ./umeverse_jobs_progression.sql
+
+  - action: query_database
+    file: ./umeverse_jobs_enhancements.sql
+
+  - action: query_database
+    file: ./umeverse_drugs.sql
+
+  - action: query_database
+    file: ./umeverse_crime.sql
+
+  - action: query_database
+    file: ./umeverse_gangs.sql
+
+  - action: query_database
+    file: ./umeverse_crime_additional.sql
+
+  - action: query_database
+    file: ./umeverse_gangs_additional.sql
 
   - action: query_database
     file: ./addon_mi_tablet.sql

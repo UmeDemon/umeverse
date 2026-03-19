@@ -129,7 +129,7 @@ CreateThread(function()
         local ped = PlayerPedId()
 
         if IsEntityDead(ped) then
-            SendNUIMessage({ action = 'updateStatus', health = 0, armor = 0, hunger = 0, thirst = 0 })
+            SendNUIMessage({ action = 'updateStatus', health = 0, armor = 0, stamina = 0, hunger = 0, thirst = 0 })
             goto continue
         end
 
@@ -137,6 +137,7 @@ CreateThread(function()
         local maxHealth = GetEntityMaxHealth(ped) - 100
         if maxHealth <= 0 then maxHealth = 100 end
         local armor = GetPedArmour(ped)
+        local stamina = GetPlayerStamina(PlayerId())
 
         local hunger = 100.0
         local thirst = 100.0
@@ -149,11 +150,12 @@ CreateThread(function()
         end
 
         SendNUIMessage({
-            action = 'updateStatus',
-            health = math.max(0, math.floor((health / maxHealth) * 100)),
-            armor  = math.max(0, math.min(100, armor)),
-            hunger = math.max(0, math.min(100, math.floor(hunger))),
-            thirst = math.max(0, math.min(100, math.floor(thirst))),
+            action  = 'updateStatus',
+            health  = math.max(0, math.floor((health / maxHealth) * 100)),
+            armor   = math.max(0, math.min(100, armor)),
+            stamina = math.max(0, math.min(100, math.floor(stamina))),
+            hunger  = math.max(0, math.min(100, math.floor(hunger))),
+            thirst  = math.max(0, math.min(100, math.floor(thirst))),
         })
         ::continue::
     end

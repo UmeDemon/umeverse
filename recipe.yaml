@@ -1,9 +1,9 @@
 $onesync: on
 
 name: Umeverse Framework
-version: 1.0.0
+version: 1.1.0
 author: Umeverse
-description: A custom FiveM RP framework with banking, inventory, vehicles, admin, and more.
+description: A custom FiveM RP framework with banking, inventory, vehicles, admin, HUD, and more.
 
 variables:
     ownerIdentifier: "license:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
@@ -12,47 +12,38 @@ variables:
     discordWebhook: ""
 
 tasks:
-  # ─── Download cfx-server-data (default FiveM resources) ───
-  - action: download_github
-    src: https://github.com/citizenfx/cfx-server-data
-    dest: ./tmp/cfx-server-data
-
-  - action: move_path
-    src: ./tmp/cfx-server-data/resources
-    dest: ./resources/[cfx-default]
-
-  # ─── Download oxmysql (release zip) ───
-  - action: download_file
-    url: https://github.com/overextended/oxmysql/releases/latest/download/oxmysql.zip
-    path: ./tmp/oxmysql.zip
-
-  - action: unzip
-    src: ./tmp/oxmysql.zip
-    dest: ./resources/oxmysql
-
-  # ─── Download pma-voice ───
-  - action: download_github
-    src: https://github.com/AvarianKnight/pma-voice
-    dest: ./resources/pma-voice
-
-  # ─── Download ox_lib ───
-  - action: download_file
-    url: https://github.com/overextended/ox_lib/releases/latest/download/ox_lib.zip
-    path: ./tmp/ox_lib.zip
-
-  - action: unzip
-    src: ./tmp/ox_lib.zip
-    dest: ./resources/ox_lib
-
-  # ─── Download Umeverse Framework ───
+  # ─── Download Umeverse Framework (includes all resources) ───
   - action: download_github
     src: https://github.com/UmeDemon/umeverse
     ref: main
     dest: ./tmp/umeverse
 
+  # ─── FiveM Default Resources (bundled in repo) ───
+  - action: move_path
+    src: ./tmp/umeverse/[cfx-default]
+    dest: ./resources/[cfx-default]
+
+  # ─── Third-Party Dependencies (bundled in repo) ───
+  - action: move_path
+    src: ./tmp/umeverse/oxmysql
+    dest: ./resources/oxmysql
+
+  - action: move_path
+    src: ./tmp/umeverse/ox_lib
+    dest: ./resources/ox_lib
+
+  - action: move_path
+    src: ./tmp/umeverse/pma-voice
+    dest: ./resources/pma-voice
+
+  # ─── Umeverse Core Resources ───
   - action: move_path
     src: ./tmp/umeverse/umeverse_core
     dest: ./resources/umeverse_core
+
+  - action: move_path
+    src: ./tmp/umeverse/umeverse_hud
+    dest: ./resources/umeverse_hud
 
   - action: move_path
     src: ./tmp/umeverse/umeverse_inventory
@@ -78,6 +69,7 @@ tasks:
     src: ./tmp/umeverse/umeverse_appearance
     dest: ./resources/umeverse_appearance
 
+  # ─── Compatibility Bridges ───
   - action: move_path
     src: ./tmp/umeverse/umeverse_bridge_qb
     dest: ./resources/umeverse_bridge_qb
@@ -90,10 +82,23 @@ tasks:
     src: ./tmp/umeverse/umeverse_bridge_tmc
     dest: ./resources/umeverse_bridge_tmc
 
-  # ─── Copy SQL file for database setup ───
+  # ─── SQL Files (extract before moving addon folder) ───
   - action: move_path
     src: ./tmp/umeverse/umeverse.sql
     dest: ./umeverse.sql
+
+  - action: copy_path
+    src: ./tmp/umeverse/[addon]/mi-tablet/sql/tablet_settings.sql
+    dest: ./addon_mi_tablet.sql
+
+  - action: copy_path
+    src: ./tmp/umeverse/[addon]/mi-tablet/sql/gallery.sql
+    dest: ./addon_mi_gallery.sql
+
+  # ─── Addon Resources ───
+  - action: move_path
+    src: ./tmp/umeverse/[addon]
+    dest: ./resources/[addon]
 
   # ─── Cleanup temp files ───
   - action: remove_path
@@ -149,17 +154,14 @@ tasks:
       ensure sessionmanager
       ensure hardcap
 
-      # ─── Database Driver ───
+      # ─── Third-Party Dependencies ───
       ensure oxmysql
-
-      # ─── Optional: Proximity Voice Chat (uncomment to enable) ───
-      #ensure pma-voice
-
-      # ─── Optional: Utility Library (uncomment to enable) ───
-      #ensure ox_lib
+      ensure pma-voice
+      ensure ox_lib
 
       # ─── Umeverse Framework (ORDER MATTERS) ───
       ensure umeverse_core
+      ensure umeverse_hud
       ensure umeverse_inventory
       ensure umeverse_banking
       ensure umeverse_vehicles
@@ -171,6 +173,10 @@ tasks:
       #ensure umeverse_bridge_qb    # QBCore / QBox compatibility
       #ensure umeverse_bridge_esx   # ESX compatibility
       #ensure umeverse_bridge_tmc   # TMC (The Mob City) compatibility
+
+      # ─── Addon Resources (uncomment to enable) ───
+      #ensure coord-recorder        # Coordinate Recorder
+      #ensure mi-tablet             # MI Tablet (requires oxmysql)
 
       # ─── Your Additional Scripts ───
       # ensure your_script_here
@@ -193,3 +199,9 @@ tasks:
 
   - action: query_database
     file: ./umeverse.sql
+
+  - action: query_database
+    file: ./addon_mi_tablet.sql
+
+  - action: query_database
+    file: ./addon_mi_gallery.sql

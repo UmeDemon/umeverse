@@ -125,15 +125,6 @@ Config.Apps = {
         requiresPermission = "admin",    -- Only visible to players with admin+ permission
     },
     {
-        id = "casino",
-        name = "Casino Management",
-        icon = "dice",
-        enabled = true,
-        isSystem = false,
-        requiresJob = "casino",         -- Only visible to casino employees
-        requiresGrade = 1,              -- Manager/Supervisor only (grade 0-1)
-    },
-    {
         id = "browser",
         name = "Browser",
         icon = "globe",
@@ -196,7 +187,6 @@ Config.Apps = {
         enabled = true,
         isSystem = false,
         requiresJobs = {              -- Visible to any of these jobs (add more as needed)
-            'fastcustoms',
             'lscustoms',
         },
     },

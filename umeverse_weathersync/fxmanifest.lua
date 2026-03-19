@@ -16,10 +16,12 @@ shared_scripts {
 
 server_scripts {
     'server/main.lua',
+    'server/zones.lua',
 }
 
 client_scripts {
     'client/main.lua',
+    'client/zones.lua',
 }
 
 dependencies {

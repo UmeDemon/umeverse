@@ -89,6 +89,238 @@ UME.Jobs = {
             [2] = { name = 'Chief Justice',   payment = 1100 },
         },
     },
+
+    -- ═══════════════════════════════════════
+    -- Civilian Jobs (self-service / clock-in)
+    -- ═══════════════════════════════════════
+
+    ['garbage'] = {
+        label = 'Garbage Collector',
+        type = 'job',
+        defaultDuty = false,
+        grades = {
+            [0] = { name = 'Trainee',    payment = 150 },
+            [1] = { name = 'Collector',   payment = 250 },
+            [2] = { name = 'Driver',      payment = 350 },
+            [3] = { name = 'Supervisor',  payment = 450 },
+        },
+    },
+
+    ['bus'] = {
+        label = 'Bus Driver',
+        type = 'job',
+        defaultDuty = false,
+        grades = {
+            [0] = { name = 'Trainee',     payment = 150 },
+            [1] = { name = 'Driver',      payment = 250 },
+            [2] = { name = 'Senior',      payment = 350 },
+            [3] = { name = 'Supervisor',  payment = 450 },
+        },
+    },
+
+    ['trucker'] = {
+        label = 'Trucker',
+        type = 'job',
+        defaultDuty = false,
+        grades = {
+            [0] = { name = 'Trainee',     payment = 150 },
+            [1] = { name = 'Driver',      payment = 275 },
+            [2] = { name = 'Long Haul',   payment = 400 },
+            [3] = { name = 'Supervisor',  payment = 500 },
+        },
+    },
+
+    ['fisherman'] = {
+        label = 'Fisherman',
+        type = 'job',
+        defaultDuty = false,
+        grades = {
+            [0] = { name = 'Novice',       payment = 100 },
+            [1] = { name = 'Fisherman',    payment = 200 },
+            [2] = { name = 'Experienced',  payment = 300 },
+            [3] = { name = 'Master',       payment = 400 },
+        },
+    },
+
+    ['lumberjack'] = {
+        label = 'Lumberjack',
+        type = 'job',
+        defaultDuty = false,
+        grades = {
+            [0] = { name = 'Trainee',     payment = 125 },
+            [1] = { name = 'Chopper',     payment = 225 },
+            [2] = { name = 'Foreman',     payment = 350 },
+            [3] = { name = 'Manager',     payment = 450 },
+        },
+    },
+
+    ['miner'] = {
+        label = 'Miner',
+        type = 'job',
+        defaultDuty = false,
+        grades = {
+            [0] = { name = 'Trainee',     payment = 150 },
+            [1] = { name = 'Miner',       payment = 275 },
+            [2] = { name = 'Driller',     payment = 375 },
+            [3] = { name = 'Foreman',     payment = 500 },
+        },
+    },
+
+    ['tow'] = {
+        label = 'Tow Truck Driver',
+        type = 'job',
+        defaultDuty = false,
+        grades = {
+            [0] = { name = 'Trainee',     payment = 150 },
+            [1] = { name = 'Driver',      payment = 275 },
+            [2] = { name = 'Senior',      payment = 375 },
+            [3] = { name = 'Supervisor',  payment = 475 },
+        },
+    },
+
+    ['pizza'] = {
+        label = 'Pizza Delivery',
+        type = 'job',
+        defaultDuty = false,
+        grades = {
+            [0] = { name = 'Trainee',     payment = 100 },
+            [1] = { name = 'Delivery',    payment = 200 },
+            [2] = { name = 'Senior',      payment = 300 },
+            [3] = { name = 'Manager',     payment = 400 },
+        },
+    },
+
+    ['reporter'] = {
+        label = 'News Reporter',
+        type = 'job',
+        defaultDuty = false,
+        grades = {
+            [0] = { name = 'Intern',       payment = 125 },
+            [1] = { name = 'Reporter',     payment = 250 },
+            [2] = { name = 'Journalist',   payment = 375 },
+            [3] = { name = 'Anchor',       payment = 500 },
+        },
+    },
+
+    ['helitour'] = {
+        label = 'Helicopter Tour',
+        type = 'job',
+        defaultDuty = false,
+        grades = {
+            [0] = { name = 'Trainee Pilot',  payment = 200 },
+            [1] = { name = 'Pilot',           payment = 350 },
+            [2] = { name = 'Senior Pilot',    payment = 500 },
+            [3] = { name = 'Chief Pilot',     payment = 650 },
+        },
+    },
+
+    ['postal'] = {
+        label = 'Postal Courier',
+        type = 'job',
+        defaultDuty = false,
+        grades = {
+            [0] = { name = 'Trainee',     payment = 125 },
+            [1] = { name = 'Courier',     payment = 225 },
+            [2] = { name = 'Senior',      payment = 325 },
+            [3] = { name = 'Supervisor',  payment = 425 },
+        },
+    },
+
+    ['dockworker'] = {
+        label = 'Dock Worker',
+        type = 'job',
+        defaultDuty = false,
+        grades = {
+            [0] = { name = 'Laborer',     payment = 150 },
+            [1] = { name = 'Operator',    payment = 275 },
+            [2] = { name = 'Foreman',     payment = 400 },
+            [3] = { name = 'Supervisor',  payment = 525 },
+        },
+    },
+
+    ['train'] = {
+        label = 'Train Engineer',
+        type = 'job',
+        defaultDuty = false,
+        grades = {
+            [0] = { name = 'Trainee',     payment = 175 },
+            [1] = { name = 'Engineer',    payment = 300 },
+            [2] = { name = 'Senior',      payment = 425 },
+            [3] = { name = 'Conductor',   payment = 550 },
+        },
+    },
+
+    ['hunter'] = {
+        label = 'Hunter',
+        type = 'job',
+        defaultDuty = false,
+        grades = {
+            [0] = { name = 'Novice',       payment = 100 },
+            [1] = { name = 'Hunter',       payment = 225 },
+            [2] = { name = 'Tracker',      payment = 350 },
+            [3] = { name = 'Master',       payment = 475 },
+        },
+    },
+
+    ['farmer'] = {
+        label = 'Farmer',
+        type = 'job',
+        defaultDuty = false,
+        grades = {
+            [0] = { name = 'Trainee',     payment = 100 },
+            [1] = { name = 'Farmhand',    payment = 200 },
+            [2] = { name = 'Farmer',      payment = 300 },
+            [3] = { name = 'Ranch Owner', payment = 425 },
+        },
+    },
+
+    ['diver'] = {
+        label = 'Salvage Diver',
+        type = 'job',
+        defaultDuty = false,
+        grades = {
+            [0] = { name = 'Trainee',     payment = 150 },
+            [1] = { name = 'Diver',       payment = 300 },
+            [2] = { name = 'Deep Diver',  payment = 450 },
+            [3] = { name = 'Master',      payment = 600 },
+        },
+    },
+
+    ['vineyard'] = {
+        label = 'Vineyard Worker',
+        type = 'job',
+        defaultDuty = false,
+        grades = {
+            [0] = { name = 'Picker',      payment = 100 },
+            [1] = { name = 'Worker',      payment = 200 },
+            [2] = { name = 'Vintner',     payment = 325 },
+            [3] = { name = 'Manager',     payment = 450 },
+        },
+    },
+
+    ['electrician'] = {
+        label = 'Electrician',
+        type = 'job',
+        defaultDuty = false,
+        grades = {
+            [0] = { name = 'Apprentice',  payment = 150 },
+            [1] = { name = 'Electrician', payment = 300 },
+            [2] = { name = 'Senior',      payment = 425 },
+            [3] = { name = 'Master',      payment = 550 },
+        },
+    },
+
+    ['security'] = {
+        label = 'Security Guard',
+        type = 'job',
+        defaultDuty = false,
+        grades = {
+            [0] = { name = 'Trainee',     payment = 125 },
+            [1] = { name = 'Guard',       payment = 225 },
+            [2] = { name = 'Senior',      payment = 350 },
+            [3] = { name = 'Supervisor',  payment = 475 },
+        },
+    },
 }
 
 --- Get a job by name

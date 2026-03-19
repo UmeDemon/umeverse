@@ -62,6 +62,10 @@ RegisterNetEvent('umeverse_weather:client:sync', function(weather, hour, minute,
 
     ApplyTime(hour, minute)
 
+    -- If player is inside a weather zone, let the zone handler control weather
+    local inZone = exports[GetCurrentResourceName()]:IsInWeatherZone()
+    if inZone then return end
+
     -- Only force weather if not in the middle of a transition
     if not isTransitioning and currentWeather ~= weather then
         ApplyWeather(weather, 0)
@@ -69,6 +73,10 @@ RegisterNetEvent('umeverse_weather:client:sync', function(weather, hour, minute,
 end)
 
 RegisterNetEvent('umeverse_weather:client:setWeather', function(weather, transitionTime)
+    -- If inside a weather zone, ignore global weather push (zone takes priority)
+    local inZone = exports[GetCurrentResourceName()]:IsInWeatherZone()
+    if inZone then return end
+
     ApplyWeather(weather, transitionTime or 0)
 end)
 
@@ -82,8 +90,9 @@ CreateThread(function()
         Wait(0)
         NetworkOverrideClockTime(currentHour, currentMinute, 0)
 
-        -- Disable GTA random weather events
-        if not isTransitioning then
+        -- Disable GTA random weather events (only when NOT in a zone)
+        local inZone = exports[GetCurrentResourceName()]:IsInWeatherZone()
+        if not isTransitioning and not inZone then
             SetWeatherTypeNowPersist(currentWeather)
         end
     end

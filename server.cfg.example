@@ -59,6 +59,8 @@ ensure umeverse_vehicles
 ensure umeverse_admin
 ensure umeverse_weathersync
 ensure umeverse_appearance
+ensure umeverse_jobs
+ensure umeverse_drugs
 
 # ──────────────────────────────────────
 # Optional: Compatibility Bridges (AFTER umeverse_core)

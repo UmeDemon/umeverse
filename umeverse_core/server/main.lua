@@ -228,7 +228,7 @@ RegisterNetEvent('umeverse:server:createCharacter', function(data)
         firstname  = firstname,
         lastname   = lastname,
         charinfo   = json.encode(data.charinfo or {}),
-        money      = json.encode({ cash = UmeConfig.StartingCash, bank = UmeConfig.StartingBank }),
+        money      = json.encode({ cash = UmeConfig.StartingCash, bank = UmeConfig.StartingBank, black = 0 }),
         job        = json.encode({ name = UmeConfig.DefaultJob, grade = UmeConfig.DefaultJobGrade, onduty = false }),
         position   = json.encode({ x = UmeConfig.DefaultSpawn.x, y = UmeConfig.DefaultSpawn.y, z = UmeConfig.DefaultSpawn.z, heading = UmeConfig.DefaultSpawn.w }),
         inventory  = json.encode({}),

@@ -44,7 +44,7 @@ function UME.LoadPlayer(source, citizenid)
     self.firstname  = data.firstname
     self.lastname   = data.lastname
     self.charinfo   = safeDecode(data.charinfo, {})
-    self.money      = safeDecode(data.money, { cash = 0, bank = 0 })
+    self.money      = safeDecode(data.money, { cash = 0, bank = 0, black = 0 })
     self.job        = safeDecode(data.job, { name = 'unemployed', grade = 0, onduty = false })
     self.position   = safeDecode(data.position, { x = UmeConfig.DefaultSpawn.x, y = UmeConfig.DefaultSpawn.y, z = UmeConfig.DefaultSpawn.z, heading = UmeConfig.DefaultSpawn.w })
     self.inventory  = safeDecode(data.inventory, {})

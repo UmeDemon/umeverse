@@ -301,6 +301,120 @@ TMC.Common.TableSortAlphabetical = function(data)
     end
 end
 
+-- ── Additional utility functions ──
+
+TMC.Common.Levenshtein = function(str1, str2)
+    local len1, len2 = #str1, #str2
+    local matrix = {}
+    for i = 0, len1 do matrix[i] = {[0] = i} end
+    for j = 0, len2 do matrix[0][j] = j end
+    for i = 1, len1 do
+        for j = 1, len2 do
+            local cost = str1:sub(i, i) == str2:sub(j, j) and 0 or 1
+            matrix[i][j] = math.min(
+                matrix[i-1][j] + 1,
+                matrix[i][j-1] + 1,
+                matrix[i-1][j-1] + cost
+            )
+        end
+    end
+    return matrix[len1][len2]
+end
+
+TMC.Common.StringStartsWith = function(str, start)
+    return str:sub(1, #start) == start
+end
+
+TMC.Common.StringEndsWith = function(str, ending)
+    return ending == "" or str:sub(-#ending) == ending
+end
+
+TMC.Common.StringSplit = function(str, delimiter)
+    return TMC.Common.SplitStr(str, delimiter)
+end
+
+TMC.Common.TableCount = function(tab)
+    local count = 0
+    for _ in pairs(tab) do count = count + 1 end
+    return count
+end
+
+TMC.Common.TableKeys = function(tab)
+    local keys = {}
+    for k in pairs(tab) do table.insert(keys, k) end
+    return keys
+end
+
+TMC.Common.TableValues = function(tab)
+    local values = {}
+    for _, v in pairs(tab) do table.insert(values, v) end
+    return values
+end
+
+TMC.Common.TableReverse = function(tab)
+    local reversed = {}
+    for i = #tab, 1, -1 do
+        table.insert(reversed, tab[i])
+    end
+    return reversed
+end
+
+TMC.Common.TableIntersect = function(t1, t2)
+    local result = {}
+    for _, v in pairs(t1) do
+        for _, v2 in pairs(t2) do
+            if v == v2 then table.insert(result, v) break end
+        end
+    end
+    return result
+end
+
+TMC.Common.FindInTable = function(tab, value, useValue)
+    for k, v in pairs(tab) do
+        if useValue then
+            if v == value then return k end
+        else
+            if k == value then return v end
+        end
+    end
+    return nil
+end
+
+TMC.Common.IsJSON = function(str)
+    local success = pcall(function() json.decode(str) end)
+    return success
+end
+
+TMC.Common.Distance = function(coords1, coords2)
+    return #(coords1 - coords2)
+end
+
+TMC.Common.IsNumberInRange = function(num, min, max)
+    return num >= min and num <= max
+end
+
+TMC.Common.GetRandomWeightedIndex = function(weights)
+    local totalWeight = 0
+    for _, w in pairs(weights) do totalWeight = totalWeight + w end
+    
+    local random = math.random(0, totalWeight * 1000) / 1000
+    local currentWeight = 0
+    
+    for i, w in pairs(weights) do
+        currentWeight = currentWeight + w
+        if random <= currentWeight then return i end
+    end
+    
+    return #weights
+end
+
+TMC.Common.IsNotEmpty = function(val)
+    if val == nil then return false end
+    if type(val) == 'string' and val == '' then return false end
+    if type(val) == 'table' and TMC.Common.TableCount(val) == 0 then return false end
+    return true
+end
+
 -- TMC.Shared aliases used by scripts (Trim, Round)
 TMC.Shared.Trim = function(str)
     if not str then return '' end
@@ -309,6 +423,42 @@ end
 
 TMC.Shared.Round = function(value, numDecimalPlaces)
     return TMC.Common.MathRound(value, numDecimalPlaces)
+end
+
+TMC.Shared.Upper = function(str)
+    return str:upper()
+end
+
+TMC.Shared.Lower = function(str)
+    return str:lower()
+end
+
+TMC.Shared.CapitalizeFirst = function(str)
+    return str:sub(1, 1):upper() .. str:sub(2)
+end
+
+TMC.Shared.Split = function(str, delimiter)
+    return TMC.Common.SplitStr(str, delimiter)
+end
+
+TMC.Shared.TrimmedSplit = function(str, delimiter)
+    local result = {}
+    for _, part in pairs(TMC.Common.SplitStr(str, delimiter)) do
+        table.insert(result, TMC.Shared.Trim(part))
+    end
+    return result
+end
+
+TMC.Shared.ToString = function(val)
+    return tostring(val)
+end
+
+TMC.Shared.ToNumber = function(val)
+    return tonumber(val)
+end
+
+TMC.Shared.IsEmpty = function(val)
+    return not TMC.Common.IsNotEmpty(val)
 end
 
 -- QBCore aliases (TMC scripts reference both TMC and QBCore globals)

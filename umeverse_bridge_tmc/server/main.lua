@@ -547,6 +547,462 @@ RegisterNetEvent('umeverse:server:jobChange', function(src, job)
 end)
 
 -- ═══════════════════════════════════════
+-- Additional TMC Functions (Job Rep, Players, SQL)
+-- ═══════════════════════════════════════
+
+-- Iterate all players
+TMC.Functions.IteratePlayers = function(callback)
+    for src, _ in pairs(UME.GetPlayers()) do
+        local player = TMC.GetPlayer(src)
+        if player then
+            callback(player)
+        end
+    end
+end
+
+-- Get players in area
+TMC.Functions.GetPlayersInArea = function(coords, range, ignoreSource)
+    coords = coords or vector3(0, 0, 0)
+    range = range or 50.0
+    local result = {}
+    
+    for src, _ in pairs(UME.GetPlayers()) do
+        if not ignoreSource or src ~= ignoreSource then
+            local player = TMC.GetPlayer(src)
+            if player then
+                local playerCoords = GetEntityCoords(GetPlayerPed(src))
+                if #(playerCoords - coords) <= range then
+                    table.insert(result, player)
+                end
+            end
+        end
+    end
+    
+    return result
+end
+
+-- SQL Async - wrapper around oxmysql
+TMC.Functions.ExecuteSql = function(query, params, callback)
+    MySQL.Async.execute(query, params or {}, callback or function() end)
+end
+
+-- SQL Sync - blocking call
+TMC.Functions.ExecuteSqlSync = function(query, params)
+    return MySQL.Sync.execute(query, params or {})
+end
+
+-- SQL Query - select data
+TMC.Functions.ExecuteSqlQuery = function(query, params, callback)
+    MySQL.Async.fetchAll(query, params or {}, callback or function() end)
+end
+
+-- SQL Query Sync
+TMC.Functions.ExecuteSqlQuerySync = function(query, params)
+    return MySQL.Sync.fetchAll(query, params or {})
+end
+
+-- SQL Scalar - get single value
+TMC.Functions.ExecuteSqlScalar = function(query, params, callback)
+    MySQL.Async.scalar(query, params or {}, callback or function() end)
+end
+
+-- Useable items registry
+local UseableItems = {}
+
+TMC.Functions.CreateUseableItem = function(itemName, callback)
+    UseableItems[itemName] = callback
+end
+
+TMC.Functions.CanUseItem = function(itemName)
+    return UseableItems[itemName] ~= nil
+end
+
+TMC.Functions.UseItem = function(source, itemName, extraData)
+    if UseableItems[itemName] then
+        local player = TMC.GetPlayer(source)
+        if player then
+            local item = player.Functions.GetItemByName(itemName)
+            if item then
+                UseableItems[itemName](source, item, extraData)
+            end
+        end
+    end
+end
+
+-- Server event registration
+TMC.Functions.RegisterServerEvent = function(eventName, callback)
+    RegisterNetEvent(eventName, function(...)
+        callback(source, ...)
+    end)
+end
+
+-- Command registration
+TMC.Commands = {}
+local Commands = {}
+
+TMC.Functions.Add = function(name, desc, args, needServer, callback, permission)
+    Commands[name] = { desc = desc, args = args, callback = callback, permission = permission or 'user' }
+    
+    TriggerEvent('chat:addSuggestion', '/' .. name, desc, args or {})
+    
+    RegisterCommand(name, function(source, args, rawCommand)
+        local src = source
+        if needServer and src == 0 then
+            return callback(src, args)
+        end
+        
+        if src ~= 0 and permission then
+            if not TMC.Functions.HasPermission(src, permission) then
+                TriggerClientEvent('chat:addMessage', src, { args = { 'System', 'Insufficient permissions' } })
+                return
+            end
+        end
+        
+        callback(src, args)
+    end, false)
+end
+
+-- Player logging utility
+TMC.Player = {}
+TMC.Player.Log = function(source)
+    local player = TMC.GetPlayer(source)
+    if player then
+        return string.format('[%d] %s (%s)', source, player.PlayerData.name, player.PlayerData.citizenid)
+    end
+    return '[' .. source .. '] Unknown'
+end
+
+-- ─ Enhanced Player Wrapper Functions ─
+
+local function AddEnhancedFunctions(playerWrapper)
+    -- Get job info for specific job
+    playerWrapper.Functions.GetJobInfo = function(jobName)
+        if jobName then
+            local jobData = playerWrapper.PlayerData.job
+            if jobData and jobData.name == jobName then
+                return jobData
+            end
+            return nil
+        end
+        return playerWrapper.PlayerData.job
+    end
+    
+    -- Add job (with rep tracking)
+    playerWrapper.Functions.AddJob = function(jobName, grade, replaceExisting)
+        local umePlayer = UME.GetPlayer(playerWrapper.PlayerData.source)
+        if umePlayer then
+            if replaceExisting then
+                umePlayer:RemoveJob(playerWrapper.PlayerData.job.name or 'unemployed')
+            end
+            umePlayer:SetJob(jobName, grade or 0)
+            playerWrapper.PlayerData.job = {
+                name = jobName,
+                label = TMC.Common.JobLabel(jobName),
+                grade = { name = (TMC.Common.GetJobGrade(jobName, grade) and TMC.Common.GetJobGrade(jobName, grade).name) or 'Grade ' .. (grade or 0), level = grade or 0 },
+                onduty = false,
+            }
+            return true
+        end
+        return false
+    end
+    
+    -- Remove job
+    playerWrapper.Functions.RemoveJob = function(jobName)
+        if playerWrapper.PlayerData.job and playerWrapper.PlayerData.job.name == jobName then
+            local umePlayer = UME.GetPlayer(playerWrapper.PlayerData.source)
+            if umePlayer then
+                umePlayer:SetJob('unemployed', 0)
+                playerWrapper.PlayerData.job = { name = 'unemployed', label = 'Unemployed', grade = { name = 'None', level = 0 }, onduty = false }
+                return true
+            end
+        end
+        return false
+    end
+    
+    -- Add reputation
+    playerWrapper.Functions.AddReputation = function(repType, amount)
+        local umePlayer = UME.GetPlayer(playerWrapper.PlayerData.source)
+        if umePlayer then
+            local currentRep = umePlayer:GetMetadata('rep_' .. repType) or 0
+            umePlayer:SetMetadata('rep_' .. repType, currentRep + (amount or 1))
+            playerWrapper.PlayerData.metadata['rep_' .. repType] = currentRep + (amount or 1)
+            return true
+        end
+        return false
+    end
+    
+    -- Get reputation
+    playerWrapper.Functions.GetReputation = function(repType)
+        return playerWrapper.PlayerData.metadata['rep_' .. repType] or 0
+    end
+    
+    -- Get item amount by name
+    playerWrapper.Functions.GetItemAmountByName = function(itemName)
+        local amount = 0
+        for _, item in pairs(playerWrapper.PlayerData.inventory or {}) do
+            if item.name == itemName then
+                amount = amount + (item.count or item.amount or 0)
+            end
+        end
+        return amount
+    end
+    
+    -- Get all items by name (handles multiple stacks)
+    playerWrapper.Functions.GetAllItemsByName = function(itemName)
+        local items = {}
+        for _, item in pairs(playerWrapper.PlayerData.inventory or {}) do
+            if item.name == itemName then
+                table.insert(items, item)
+            end
+        end
+        return items
+    end
+    
+    -- Check if has item
+    playerWrapper.Functions.HasItem = function(itemName, amount)
+        amount = amount or 1
+        return playerWrapper.Functions.GetItemAmountByName(itemName) >= amount
+    end
+    
+    -- Set item info (metadata for specific slot)
+    playerWrapper.Functions.SetItemMetadata = function(itemName, metadata, amount)
+        local umePlayer = UME.GetPlayer(playerWrapper.PlayerData.source)
+        if umePlayer then
+            umePlayer:RemoveItem(itemName, amount or 1)
+            local infoJson = json.encode(metadata or {})
+            umePlayer:AddItem(itemName, amount or 1, infoJson)
+            return true
+        end
+        return false
+    end
+    
+    -- Trigger item use and notify
+    playerWrapper.Functions.UseItem = function(itemName, extraData)
+        TMC.Functions.UseItem(playerWrapper.PlayerData.source, itemName, extraData)
+    end
+    
+    return playerWrapper
+end
+
+-- Update WrapTMCPlayer to use enhanced functions
+local OriginalWrapTMCPlayer = WrapTMCPlayer
+function WrapTMCPlayer(umePlayer)
+    local wrapper = OriginalWrapTMCPlayer(umePlayer)
+    return AddEnhancedFunctions(wrapper)
+end
+
+-- ═══════════════════════════════════════
+-- Additional Server Utilities
+-- ═══════════════════════════════════════
+
+-- Weapon management
+TMC.Functions.AddWeaponToPlayer = function(source, weaponName, ammo)
+    ammo = ammo or 250
+    local weapon = joaat(weaponName)
+    GiveWeaponToPed(GetPlayerPed(source), weapon, ammo, false, true)
+end
+
+TMC.Functions.RemoveWeaponFromPlayer = function(source, weaponName)
+    local weapon = joaat(weaponName)
+    RemoveWeaponFromPed(GetPlayerPed(source), weapon)
+end
+
+TMC.Functions.GiveAllWeaponsToPlayer = function(source, ammo)
+    ammo = ammo or 250
+    local weapons = {
+        'WEAPON_PISTOL', 'WEAPON_SMG', 'WEAPON_MICROSMG', 'WEAPON_ASSAULTRIFLE',
+        'WEAPON_CARBINERIFLE', 'WEAPON_SHOTGUN', 'WEAPON_SAWNOFFSHOTGUN',
+        'WEAPON_PUMPSHOTGUN', 'WEAPON_SNIPER', 'WEAPON_HEAVYSNIPER'
+    }
+    for _, weapon in pairs(weapons) do
+        TMC.Functions.AddWeaponToPlayer(source, weapon, ammo)
+    end
+end
+
+TMC.Functions.GetPlayerWeapons = function(source)
+    local ped = GetPlayerPed(source)
+    local weapons = {}
+    for _, weaponHash in pairs(GetWeaponComponentTypeModel(ped)) do
+        table.insert(weapons, weaponHash)
+    end
+    return weapons
+end
+
+-- Teleport
+TMC.Functions.TeleportPlayer = function(source, coords, heading)
+    if source == 0 then return end
+    local ped = GetPlayerPed(source)
+    if DoesEntityExist(ped) then
+        RequestCollisionAtCoord(coords.x, coords.y, coords.z)
+        SetEntityCoords(ped, coords.x, coords.y, coords.z, false, false, false, false)
+        if heading then SetEntityHeading(ped, heading) end
+    end
+end
+
+-- Freeze player
+TMC.Functions.FreezePlayer = function(source, toggle)
+    local ped = GetPlayerPed(source)
+    if DoesEntityExist(ped) then
+        FreezeEntityPosition(ped, toggle)
+    end
+end
+
+-- Set invincible
+TMC.Functions.SetInvincible = function(source, toggle)
+    local ped = GetPlayerPed(source)
+    if DoesEntityExist(ped) then
+        SetEntityInvincible(ped, toggle)
+    end
+end
+
+-- Heal player
+TMC.Functions.HealPlayer = function(source, health, armor)
+    local ped = GetPlayerPed(source)
+    if DoesEntityExist(ped) then
+        if health then SetEntityHealth(ped, health) end
+        if armor then SetPedArmour(ped, armor) end
+    end
+end
+
+-- Get player health
+TMC.Functions.GetPlayerHealth = function(source)
+    local ped = GetPlayerPed(source)
+    if DoesEntityExist(ped) then
+        return GetEntityHealth(ped) - 100
+    end
+    return 0
+end
+
+-- Get player armor
+TMC.Functions.GetPlayerArmor = function(source)
+    local ped = GetPlayerPed(source)
+    if DoesEntityExist(ped) then
+        return GetPedArmour(ped)
+    end
+    return 0
+end
+
+-- Kick player
+TMC.Functions.KickPlayer = function(source, reason)
+    reason = reason or 'You have been kicked from the server'
+    TriggerClientEvent('disconnect', source, {reason = reason})
+    DropPlayer(source, reason)
+end
+
+-- Ban player (requires admin resource integration)
+TMC.Functions.BanPlayer = function(source, reason, duration)
+    reason = reason or 'Banned from server'
+    -- This would integrate with your ban system
+    TMC.Functions.KickPlayer(source, '[BANNED] ' .. reason)
+end
+
+-- Get player name with source
+TMC.Functions.GetPlayerName = function(source)
+    return GetPlayerName(source)
+end
+
+-- Get player ping
+TMC.Functions.GetPlayerPing = function(source)
+    return GetPlayerPing(source)
+end
+
+-- Get all players info
+TMC.Functions.GetAllPlayersData = function()
+    local result = {}
+    for src, _ in pairs(UME.GetPlayers()) do
+        local player = TMC.GetPlayer(src)
+        if player then
+            table.insert(result, {
+                source = src,
+                name = GetPlayerName(src),
+                citizenid = player.PlayerData.citizenid,
+                job = player.PlayerData.job.name,
+                data = player.PlayerData
+            })
+        end
+    end
+    return result
+end
+
+-- Advanced notification with target
+TMC.Functions.AdvancedNotify = function(source, title, message, notifyType, duration)
+    UME.Notify(source, message, notifyType or 'info', duration or 5000, title)
+end
+
+-- Send textUI message
+TMC.Functions.SendTextUI = function(source, message, type)
+    TriggerClientEvent('TMC:Client:TextUI', source, message, type or 'info')
+end
+
+-- Close textUI
+TMC.Functions.CloseTextUI = function(source)
+    TriggerClientEvent('TMC:Client:HideTextUI', source)
+end
+
+-- Set player bugged
+TMC.Functions.SetPlayerBugged = function(source, toggle)
+    SetPlayerBugged(source, toggle)
+end
+
+-- Get Vehicle Health
+TMC.Functions.GetVehicleHealth = function(vehicle)
+    if DoesEntityExist(vehicle) then
+        return GetVehicleEngineHealth(vehicle)
+    end
+    return 0
+end
+
+-- Set Vehicle Health
+TMC.Functions.SetVehicleHealth = function(vehicle, health)
+    if DoesEntityExist(vehicle) then
+        SetVehicleEngineHealth(vehicle, health + 0.0)
+    end
+end
+
+-- Get vehicle door status
+TMC.Functions.GetVehicleDoors = function(vehicle)
+    if not DoesEntityExist(vehicle) then return nil end
+    local doors = {}
+    for i = 0, 5 do
+        doors[i] = IsVehicleDoorDamaged(vehicle, i)
+    end
+    return doors
+end
+
+-- Repair vehicle
+TMC.Functions.RepairVehicle = function(vehicle)
+    if DoesEntityExist(vehicle) then
+        SmashVehicleWindow(vehicle, 0)
+        SmashVehicleWindow(vehicle, 1)
+        SmashVehicleWindow(vehicle, 2)
+        SmashVehicleWindow(vehicle, 3)
+        SetVehicleEngineHealth(vehicle, 1000.0)
+        SetVehicleBodyHealth(vehicle, 1000.0)
+        SetVehicleDirtLevel(vehicle, 0.0)
+    end
+end
+
+-- Vehicle utility
+TMC.Functions.IsVehicleEngineRunning = function(vehicle)
+    return GetIsVehicleEngineRunning(vehicle)
+end
+
+-- Player location info
+TMC.Functions.GetPlayerLocation = function(source)
+    local ped = GetPlayerPed(source)
+    if DoesEntityExist(ped) then
+        local coords = GetEntityCoords(ped)
+        return {
+            x = coords.x,
+            y = coords.y,
+            z = coords.z,
+            heading = GetEntityHeading(ped)
+        }
+    end
+    return nil
+end
+
+-- ═══════════════════════════════════════
 -- Exports
 -- ═══════════════════════════════════════
 

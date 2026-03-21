@@ -668,6 +668,88 @@ TMC.Functions.SetVehicleProperties = function(vehicle, props)
     end
 end
 
+-- ── State Bag Utilities ──
+
+TMC.Functions.GetStateBag = function(entity)
+    if not DoesEntityExist(entity) then return nil end
+    return Entity(entity).state
+end
+
+TMC.Functions.SetStateBag = function(entity, key, value)
+    if not DoesEntityExist(entity) then return false end
+    Entity(entity).state:set(key, value, true)
+    return true
+end
+
+TMC.Functions.GetStateBagValue = function(entity, key)
+    if not DoesEntityExist(entity) then return nil end
+    return Entity(entity).state[key]
+end
+
+TMC.Functions.GetPlayerStateBag = function(player)
+    player = player or PlayerId()
+    local ped = GetPlayerPed(player)
+    if not DoesEntityExist(ped) then return nil end
+    return Entity(ped).state
+end
+
+-- ── Area Utilities ──
+
+TMC.Functions.IsPlayerInArea = function(coords, range, checkSelf)
+    local playerCoords = GetEntityCoords(PlayerPedId())
+    local inArea = #(playerCoords - coords) <= range
+    return inArea
+end
+
+TMC.Functions.GetPlayersInAreaRadius = function(coords, range)
+    local result = {}
+    for _, player in ipairs(GetActivePlayers()) do
+        local ped = GetPlayerPed(player)
+        if DoesEntityExist(ped) then
+            local playerCoords = GetEntityCoords(ped)
+            if #(playerCoords - coords) <= range then
+                table.insert(result, player)
+            end
+        end
+    end
+    return result
+end
+
+TMC.Functions.GetClientPlayers = function()
+    return GetActivePlayers()
+end
+
+-- ── Draw Text Extensions ──
+
+TMC.Functions.Draw3DTextAlt = function(x, y, z, text, fontId, scale, rgba)
+    fontId = fontId or 1
+    scale = scale or 1.0
+    rgba = rgba or {r = 255, g = 255, b = 255, a = 255}
+    
+    SetTextFont(fontId)
+    SetTextProportional(false)
+    SetTextScale(scale, scale)
+    SetTextColour(rgba.r, rgba.g, rgba.b, rgba.a)
+    SetTextOutline()
+    SetTextEntry("STRING")
+    AddTextComponentString(text)
+    DrawText(x, y)
+end
+
+TMC.Functions.Draw3DText = function(coords, text, ...)
+    local args = {...}
+    local distance = args[1] or 50.0
+    local r, g, b, a = args[2] or 255, args[3] or 255, args[4] or 255, args[5] or 255
+    
+    local playerCoords = GetEntityCoords(PlayerPedId())
+    if #(playerCoords - coords) > distance then return end
+    
+    local screenCoords = GetScreenCoordFromWorldCoord(coords.x, coords.y, coords.z)
+    if not screenCoords then return end
+    
+    TMC.Functions.Draw3DTextAlt(screenCoords[1], screenCoords[2], 0, text, 1, 0.5, {r = r, g = g, b = b, a = a})
+end
+
 -- ── Animation / Streaming ──
 
 TMC.Functions.RequestAnimDict = function(animDict)
@@ -766,6 +848,162 @@ TMC.Functions.GetZoneAtCoords = function(coords)
     return GetLabelText(GetNameOfZone(coords.x, coords.y, coords.z))
 end
 
+TMC.Functions.GetPlayerJob = function()
+    RefreshPlayerData()
+    return TMC.PlayerData.job
+end
+
+TMC.Functions.GetPlayerGang = function()
+    RefreshPlayerData()
+    return TMC.PlayerData.gang
+end
+
+TMC.Functions.GetPlayerMoney = function(type)
+    RefreshPlayerData()
+    return TMC.PlayerData.money[type] or 0
+end
+
+TMC.Functions.GetPlayerInventory = function()
+    RefreshPlayerData()
+    return TMC.PlayerData.inventory
+end
+
+TMC.Functions.GetPlayerIdentifier = function()
+    RefreshPlayerData()
+    return TMC.PlayerData.citizenid
+end
+
+TMC.Functions.GetPlayerSex = function()
+    RefreshPlayerData()
+    return TMC.PlayerData.charinfo and TMC.PlayerData.charinfo.sex or 'M'
+end
+
+TMC.Functions.GetPlayerPhoneNumber = function()
+    RefreshPlayerData()
+    return TMC.PlayerData.charinfo and TMC.PlayerData.charinfo.phone or ''
+end
+
+-- ── Drawing utilities organized in TMC.Utils ──
+
+TMC.Utils = {}
+
+TMC.Utils.DrawRect3D = function(x, y, z, width, height, r, g, b, a)
+    a = a or 255
+    DrawRect(x, y, width, height, r, g, b, a)
+end
+
+TMC.Utils.DrawMarker = function(type, x, y, z, dirX, dirY, dirZ, rotX, rotY, rotZ, scaleX, scaleY, scaleZ, r, g, b, a, bobUpAndDown, faceCamera, p19, rotate, textureDict, textureName, drawOnEnts)
+    DrawMarker(type, x, y, z, dirX, dirY, dirZ, rotX, rotY, rotZ, scaleX, scaleY, scaleZ, r, g, b, a, bobUpAndDown, faceCamera, p19, rotate, textureDict, textureName, drawOnEnts)
+end
+
+TMC.Utils.GetDistanceBetween = function(c1, c2)
+    return #(c1 - c2)
+end
+
+TMC.Utils.IsPlayerNearPosition = function(coords, distance)
+    local playerCoords = GetEntityCoords(PlayerPedId())
+    return #(playerCoords - coords) <= distance
+end
+
+TMC.Utils.IsModelValid = function(model)
+    if type(model) == 'string' then model = joaat(model) end
+    return IsModelValid(model)
+end
+
+TMC.Utils.CycleJob = function(currentJob)
+    RefreshPlayerData()
+    if TMC.PlayerData.job.name == currentJob then
+        return true
+    end
+    return false
+end
+
+TMC.Utils.CyclePermission = function(permission)
+    -- Check players perm
+    return true
+end
+
+-- ── Ped/Entity utilities ──
+
+TMC.Functions.CreatePedLocal = function(model, coords, heading, freeze, invincible)
+    TMC.Functions.LoadModel(model)
+    local ped = CreatePed(4, model, coords.x, coords.y, coords.z, heading or 0.0, false, false)
+    if freeze then FreezeEntityPosition(ped, true) end
+    if invincible then SetEntityInvincible(ped, true) end
+    SetModelAsNoLongerNeeded(model)
+    return ped
+end
+
+TMC.Functions.CreateObjectLocal = function(model, coords, heading)
+    TMC.Functions.LoadModel(model)
+    local obj = CreateObject(model, coords.x, coords.y, coords.z, false, true, false)
+    if heading then SetEntityHeading(obj, heading) end
+    SetModelAsNoLongerNeeded(model)
+    return obj
+end
+
+TMC.Functions.TeleportPlayer = function(vector, heading)
+    RequestCollisionAtCoord(vector.x, vector.y, vector.z)
+    SetEntityCoords(PlayerPedId(), vector.x, vector.y, vector.z, false, false, false, false)
+    if heading then SetEntityHeading(PlayerPedId(), heading) end
+end
+
+-- ── Input utilities ──
+
+TMC.Functions.IsKeyPressed = function(key)
+    return IsControlPressed(0, GetHashKey(key) or key)
+end
+
+TMC.Functions.IsKeyJustPressed = function(key)
+    return IsControlJustPressed(0, GetHashKey(key) or key)
+end
+
+TMC.Functions.IsKeyJustReleased = function(key)
+    return IsControlJustReleased(0, GetHashKey(key) or key)
+end
+
+-- ── Raycast utilities ──
+
+TMC.Functions.RaycastFromCamera = function(distance)
+    local cam = GetGameplayCamCoord()
+    local direction = GetGameplayCamRot(2)
+    local rotation = vector3(
+        (direction.x) * math.pi / 180.0,
+        (direction.y) * math.pi / 180.0,
+        (direction.z) * math.pi / 180.0
+    )
+    local ahead = vector3(
+        cam.x + math.sin(rotation.z) * math.cos(rotation.x) * distance,
+        cam.y + math.cos(rotation.z) * math.cos(rotation.x) * distance,
+        cam.z + math.sin(rotation.x) * distance
+    )
+    return cam, ahead
+end
+
+TMC.Functions.Raycast = function(startCoords, endCoords, flags, ignore)
+    local ray = StartShapeTestRay(startCoords, endCoords, flags, ignore, 4)
+    local hit, endCoords, surfaceNormal, entityHit = GetShapeTestResult(ray)
+    return hit, endCoords, surfaceNormal, entityHit
+end
+
+-- ── Blip utilities ──
+
+TMC.Functions.CreateBlip = function(label, sprite, color, coords, scale, shortrange)
+    local blip = AddBlipForCoord(coords)
+    SetBlipSprite(blip, sprite)
+    SetBlipColour(blip, color)
+    SetBlipAsShortRange(blip, shortrange)
+    SetBlipScale(blip, scale)
+    AddTextEntry(label, label)
+    SetBlipName(blip, label)
+    return blip
+end
+
+TMC.Functions.RemoveBlip = function(blip)
+    if DoesBlipExist(blip) then RemoveBlip(blip) end
+end
+
+
 TMC.Functions.GetCardinalDirection = function(entity)
     entity = entity or PlayerPedId()
     local heading = GetEntityHeading(entity)
@@ -861,14 +1099,118 @@ TMC.Natives.GetOffsetFromCoordsInDirection = function(coords, heading, distance)
     )
 end
 
-TMC.Natives.GetDlcVehicleData = function(dlcType, index)
-    local success, data = GetDlcVehicleData(dlcType, index)
-    return success and data or nil
+-- ── Weapon Utilities ──
+
+TMC.Functions.GiveWeapon = function(weaponName, ammo)
+    ammo = ammo or 250
+    local weapon = joaat(weaponName)
+    GiveWeaponToPed(PlayerPedId(), weapon, ammo, false, true)
 end
 
-TMC.Natives.GetDlcWeaponData = function(dlcType, index)
-    local success, data = GetDlcWeaponData(dlcType, index)
-    return success and data or nil
+TMC.Functions.RemoveWeapon = function(weaponName)
+    local weapon = joaat(weaponName)
+    RemoveWeaponFromPed(PlayerPedId(), weapon)
+end
+
+TMC.Functions.RemoveAllWeapons = function()
+    RemoveAllPedWeapons(PlayerPedId(), true)
+end
+
+TMC.Functions.GetCurrentWeapon = function()
+    local _, weapon = GetCurrentPedWeapon(PlayerPedId())
+    return weapon
+end
+
+TMC.Functions.GiveAmmo = function(weaponName, ammo)
+    local weapon = joaat(weaponName)
+    local ped = PlayerPedId()
+    if HasPedGotWeapon(ped, weapon, false) then
+        AddAmmoToPed(ped, weapon, ammo)
+    end
+end
+
+TMC.Functions.GetWeaponAmmo = function(weaponName)
+    local weapon = joaat(weaponName)
+    return GetAmmoInPedWeapon(PlayerPedId(), weapon)
+end
+
+-- ── Vehicle Client Utilities ──
+
+TMC.Functions.GetClosestVehicleEx = function(distance)
+    distance = distance or 50.0
+    local playerCoords = GetEntityCoords(PlayerPedId())
+    local closestVeh = nil
+    local closestDist = distance
+    
+    for _, veh in ipairs(GetGamePool('CVehicle')) do
+        local dist = #(playerCoords - GetEntityCoords(veh))
+        if dist < closestDist then
+            closestVeh = veh
+            closestDist = dist
+        end
+    end
+    
+    return closestVeh, closestDist
+end
+
+TMC.Functions.IsPlayerInVehicle = function()
+    return GetVehiclePedIsIn(PlayerPedId(), false) ~= 0
+end
+
+TMC.Functions.GetPlayerVehicle = function()
+    local veh = GetVehiclePedIsIn(PlayerPedId(), false)
+    if veh ~= 0 then return veh end
+    return nil
+end
+
+TMC.Functions.GetVehicleSpeed = function(vehicle)
+    if not DoesEntityExist(vehicle) then return 0 end
+    local speed = GetEntitySpeed(vehicle)
+    return math.ceil(speed * 3.6 * 10) / 10 -- Convert to km/h
+end
+
+TMC.Functions.IsVehicleDriveable = function(vehicle)
+    if not DoesEntityExist(vehicle) then return false end
+    return (GetVehicleEngineHealth(vehicle) + 0.0) > 100.0
+end
+
+-- ── Advanced Location & Traversal ──
+
+TMC.Functions.GetLocationName = function(coords)
+    local zoneName = GetLabelText(GetNameOfZone(coords.x, coords.y, coords.z))
+    local streetName, crossingRoad = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
+    return GetStreetNameFromHashKey(streetName)
+end
+
+TMC.Functions.GetCardinalDirection = function(entity)
+    entity = entity or PlayerPedId()
+    local heading = GetEntityHeading(entity)
+    if heading >= 315.0 or heading < 45.0 then return 'North'
+    elseif heading >= 45.0 and heading < 135.0 then return 'West'
+    elseif heading >= 135.0 and heading < 225.0 then return 'South'
+    else return 'East'
+    end
+end
+
+TMC.Functions.GetPlayersNearPlayer = function(distance)
+    distance = distance or 50.0
+    local playerCoords = GetEntityCoords(PlayerPedId())
+    local nearbyPlayers = {}
+    
+    for _, player in ipairs(GetActivePlayers()) do
+        if player ~= PlayerId() then
+            local ped = GetPlayerPed(player)
+            if DoesEntityExist(ped) then
+                local dist = #(playerCoords - GetEntityCoords(ped))
+                if dist < distance then
+                    table.insert(nearbyPlayers, {player = player, dist = dist})
+                end
+            end
+        end
+    end
+    
+    table.sort(nearbyPlayers, function(a, b) return a.dist < b.dist end)
+    return nearbyPlayers
 end
 
 -- ═══════════════════════════════════════
